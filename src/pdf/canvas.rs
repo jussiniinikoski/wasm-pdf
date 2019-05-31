@@ -241,7 +241,7 @@ impl Canvas {
             cell_cursor.0 += cell_width;
             self.set_cursor(cell_cursor.0, cell_cursor.1);
         }
-        self.set_cursor(row_cursor.0, row_cursor.1 - row_height);
+        self.set_cursor(row_cursor.0, row_cursor.1 - row_height- vertical_padding);
         // Draw grid lines if so configured
         if table.style.grid_visible {
             self.draw_lines(grid_lines, table);

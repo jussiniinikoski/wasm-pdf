@@ -35,10 +35,9 @@
                 "align": "center",
                 "padding": {
                     "bottom": 5,
-                    "top": 10,
-                    "left": -50
+                    "top": 10
                 },
-                "font_name": "Times-bold-Italic"
+                "font_name": "times-bold-italic"
 
             }
         },
@@ -80,10 +79,159 @@
         {
             "obj_type": "Paragraph",
             "params": {
-                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam maximus tincidunt nisl. Integer bibendum, leo sed lobortis mollis, orci ante vulputate velit, id ultricies diam mauris consequat neque. Integer et nibh lectus. Cras felis massa, vehicula eget consequat sit amet, bibendum et est. Morbi ultrices id metus quis mollis. Suspendisse condimentum tristique est, sit amet tempor nulla semper sit amet. Aliquam luctus lacinia porta. In et tellus tincidunt, faucibus nisi in, vestibulum urna. Vestibulum eu neque massa. Morbi id tellus euismod, congue diam non, varius ligula. Etiam vel diam gravida eros molestie iaculis dictum ac ligula. Sed rutrum sagittis massa eu feugiat. Etiam blandit iaculis bibendum.",
+                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam maximus tincidunt nisl. Integer bibendum, leo sed lobortis mollis, orci ante vulputate velit, id ultricies diam mauris consequat neque. Integer et nibh lectus. Cras felis massa, vehicula eget consequat sit amet, bibendum et est.",
                 "font_name": "courier",
                 "font_size": 12,
                 "align": "left"
+            }
+        },
+        {
+            "obj_type": "Spacer",
+            "params": {
+                "height": 10
+            }
+        },
+        {
+            "obj_type": "Table",
+            "params": {
+                "style": {
+                    "grid": {
+                        "width": 0.25,
+                        "color": [0.6, 0.6, 0.6]
+                    },
+                    "padding": {
+                        "left": 5.0,
+                        "right": 5.0,
+                        "top": 5.0,
+                        "bottom": 5.0
+                    },
+                    "align": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                    }
+                },
+                "rows": [{
+                    "obj_type": "Row",
+                    "params": {
+                        "cells": [{
+                                "obj_type": "Cell",
+                                "params": {
+                                    "span": 3,
+                                    "style": {
+                                        "background_color": [0.9, 0.9, 0.95]
+                                    },
+                                    "contents": [{
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam faucibus quis est ac ultrices. Pellentesque turpis massa, interdum at tempus ac, tincidunt sit amet neque. Cras nisl sapien, molestie sed nibh vitae, tincidunt fermentum nisl. Vivamus sed velit finibus, congue libero vel, elementum dui. Vestibulum nulla odio, laoreet a aliquam id, fermentum at eros.",
+                                            "font_size": 10,
+                                            "leading": 10,
+                                            "align": "left"
+                                        }
+                                    },
+                                    {
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Centered Text",
+                                            "align": "center"
+                                        }
+                                    }]
+                                }
+                            },
+                            {
+                                "obj_type": "Cell",
+                                "params": {
+                                    "contents": [{
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Red Cell"
+                                        }
+                                    }
+                                ],
+                                    "style": {
+                                        "background_color": [1, 0, 0]
+                                    }
+                                }
+                            },
+                            {
+                                "obj_type": "Cell",
+                                "params": {
+                                    "contents": [{
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Sample Image",
+                                            "align": "center",
+                                            "font_name": "Courier-Oblique",
+                                            "font_size": 10,
+                                            "padding": {
+                                                "bottom": 5
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "obj_type": "Image",
+                                        "params": {
+                                            "src": "/examples/pizza.jpg",
+                                            "fit_width": true
+                                        }
+                                    },
+                                    {
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Yummy!",
+                                            "align": "center",
+                                            "font_name": "courier-bold-oblique",
+                                            "font_size": 10,
+                                            "padding": {
+                                                "top": 5
+                                            }
+                                        }
+                                    }
+                                ]
+                                }
+                            },
+                            {
+                                "obj_type": "Cell",
+                                "params": {
+                                    "contents": [{
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Cell 4"
+                                        }
+                                    }]
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "obj_type": "Row",
+                    "params": {
+                        "cells": [{
+                                "obj_type": "Cell",
+                                "params": {
+                                    "contents": [{
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam faucibus quis est ac ultrices. Pellentesque turpis massa, interdum at tempus ac, tincidunt sit amet neque. Cras nisl sapien, molestie sed nibh vitae, tincidunt fermentum nisl. Vivamus sed velit finibus, congue libero vel, elementum dui. Vestibulum nulla odio, laoreet a aliquam id, fermentum at eros.",
+                                            "font_size": 10,
+                                            "leading": 10,
+                                            "align": "left"
+                                        }
+                                    },
+                                    {
+                                        "obj_type": "Paragraph",
+                                        "params": {
+                                            "text": "Centered Text",
+                                            "align": "center"
+                                        }
+                                    }]
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
             }
         }
     ]
