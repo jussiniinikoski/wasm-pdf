@@ -3,9 +3,9 @@
 
 The aim of this project is to make a WASM PDF generator library, which is able to generate simple PDF files with ease and also a bit more complicated PDF's with tables etc.
 
-**This library is working, but is also at a prototype stage, so I don't recommend using it in anything serious yet.**
+**This library is working, but is also at a prototype stage (Work In Progress), so I don't recommend using it in anything serious yet.**
 
-### How to check this out
+### How to generate an example PDF
 
 * First install [the Rust compiler](https://www.rust-lang.org)
 * Clone this repo:```git clone https://github.com/jussiniinikoski/pack-pdf.git```
