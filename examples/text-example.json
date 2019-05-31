@@ -1,0 +1,90 @@
+{
+    "title": "Example Document",
+    "template": {
+        "top": 50,
+        "left": 50,
+        "right": 50,
+        "bottom": 50
+    },
+    "contents": [
+        {
+            "obj_type": "Paragraph",
+            "params": {
+                "text": "Title comes here",
+                "font_size": 18,
+                "leading": 24,
+                "font_name": "Helvetica-Bold-Oblique"
+
+            }
+        },
+        {
+            "obj_type": "Paragraph",
+            "params": {
+                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam maximus tincidunt nisl. Integer bibendum, leo sed lobortis mollis, orci ante vulputate velit, id ultricies diam mauris consequat neque. Integer et nibh lectus. Cras felis massa, vehicula eget consequat sit amet, bibendum et est. Morbi ultrices id metus quis mollis. Suspendisse condimentum tristique est, sit amet tempor nulla semper sit amet. Aliquam luctus lacinia porta. In et tellus tincidunt, faucibus nisi in, vestibulum urna. Vestibulum eu neque massa. Morbi id tellus euismod, congue diam non, varius ligula. Etiam vel diam gravida eros molestie iaculis dictum ac ligula. Sed rutrum sagittis massa eu feugiat. Etiam blandit iaculis bibendum.",
+                "font_name": "Helvetica",
+                "font_size": 12,
+                "align": "left"
+            }
+        },
+        {
+            "obj_type": "Paragraph",
+            "params": {
+                "text": "Title comes here",
+                "font_size": 18,
+                "leading": 24,
+                "align": "center",
+                "padding": {
+                    "bottom": 5,
+                    "top": 10,
+                    "left": -50
+                },
+                "font_name": "Times-bold-Italic"
+
+            }
+        },
+        {
+            "obj_type": "Paragraph",
+            "params": {
+                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam maximus tincidunt nisl. Integer bibendum, leo sed lobortis mollis, orci ante vulputate velit, id ultricies diam mauris consequat neque. Integer et nibh lectus. Cras felis massa, vehicula eget consequat sit amet, bibendum et est. Morbi ultrices id metus quis mollis. Suspendisse condimentum tristique est, sit amet tempor nulla semper sit amet. Aliquam luctus lacinia porta. In et tellus tincidunt, faucibus nisi in, vestibulum urna. Vestibulum eu neque massa. Morbi id tellus euismod, congue diam non, varius ligula. Etiam vel diam gravida eros molestie iaculis dictum ac ligula. Sed rutrum sagittis massa eu feugiat. Etiam blandit iaculis bibendum.",
+                "font_name": "Times",
+                "font_size": 12,
+                "align": "left"
+            }
+        },
+        {
+            "obj_type": "Paragraph",
+            "params": {
+                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam maximus tincidunt nisl. Integer bibendum, leo sed lobortis mollis, orci ante vulputate velit, id ultricies diam mauris consequat neque. Integer et nibh lectus. Cras felis massa, vehicula eget consequat sit amet, bibendum et est.",
+                "font_name": "Times",
+                "font_size": 12,
+                "bullet": "-",
+                "bullet_indent": 12,
+                "padding": {
+                    "left": 20.0,
+                    "right": 0.0,
+                    "top": 10.0,
+                    "bottom": 0.0
+                }
+            }
+        },
+        {
+            "obj_type": "Paragraph",
+            "params": {
+                "text": "Title comes here",
+                "font_size": 18,
+                "leading": 24,
+                "font_name": "Courier-Bold-Oblique"
+
+            }
+        },
+        {
+            "obj_type": "Paragraph",
+            "params": {
+                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam maximus tincidunt nisl. Integer bibendum, leo sed lobortis mollis, orci ante vulputate velit, id ultricies diam mauris consequat neque. Integer et nibh lectus. Cras felis massa, vehicula eget consequat sit amet, bibendum et est. Morbi ultrices id metus quis mollis. Suspendisse condimentum tristique est, sit amet tempor nulla semper sit amet. Aliquam luctus lacinia porta. In et tellus tincidunt, faucibus nisi in, vestibulum urna. Vestibulum eu neque massa. Morbi id tellus euismod, congue diam non, varius ligula. Etiam vel diam gravida eros molestie iaculis dictum ac ligula. Sed rutrum sagittis massa eu feugiat. Etiam blandit iaculis bibendum.",
+                "font_name": "courier",
+                "font_size": 12,
+                "align": "left"
+            }
+        }
+    ]
+}

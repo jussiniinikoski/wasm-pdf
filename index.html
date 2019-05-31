@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>PACK-PDF</title>
+</head>
+
+<body>
+    <p>
+        One moment, creating PDF...
+    </p>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch("./examples/text-example.json")
+                .then(response => {
+                    return response.json();
+                })
+                .then(doc => {
+                    createPDF(doc);
+                });
+        });
+
+        let pdfFileBlobURL = null;
+        let generatePDF = (data) => {
+            const blob = new Blob([data], {
+                type: 'application/pdf'
+            });
+            if (pdfFileBlobURL !== null) {
+                URL.revokeObjectURL(pdfFileBlobURL);
+            }
+            pdfFileBlobURL = URL.createObjectURL(blob);
+            // for debugging purposes, open another window
+            //window.open(pdfFileBlobURL, "_blank");
+            window.location.href = pdfFileBlobURL;
+        }
+
+        let jsonOut = (data) => {
+            console.log(JSON.stringify(data));
+        };
+    </script>
+</body>
+</html>

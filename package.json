@@ -1,0 +1,29 @@
+{
+  "name": "pack-pdf",
+  "version": "1.0.0",
+  "description": "Generates PDF file from JSON with WebAssembly.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jussiniinikoski/pack-pdf.git"
+  },
+  "author": "Jussi Niinikoski <jussi.niinikoski@perjantai.fi>",
+  "license": "(MIT OR Apache-2.0)",
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "rust",
+    "pdf"
+  ],
+  "scripts": {
+    "build": "webpack",
+    "serve": "webpack-dev-server"
+  },
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "0.2.1",
+    "text-encoding": "^0.7.0",
+    "html-webpack-plugin": "^3.2.0",
+    "webpack": "^4.29.4",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-server": "^3.1.0"
+  }
+}
