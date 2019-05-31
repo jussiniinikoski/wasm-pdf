@@ -7,7 +7,7 @@ Idea behind this project was to push all the work creating a PDF to the client s
 
 **This library is working, but is also at a prototype stage (Work In Progress), so I don't recommend using it in anything serious yet.**
 
-### How to generate an example PDF
+## How to generate an example PDF
 
 * First install [the Rust compiler](https://www.rust-lang.org)
 * Clone this repo:```git clone https://github.com/jussiniinikoski/pack-pdf.git```
@@ -16,3 +16,11 @@ Idea behind this project was to push all the work creating a PDF to the client s
 * Launch the local development server: ```npm run serve```
 * Visit the url provided by the server, usually ```http://localhost:8080```
 
+## License
+
+This project is licensed under either of
+
+ * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
+   http://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or
+   http://opensource.org/licenses/MIT)
