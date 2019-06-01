@@ -9,7 +9,9 @@ Idea behind this project is to push all the work involved in creating a PDF to t
 
 ## Demo
 
-To be disclosed at a later date
+Example with a link to generate a sample PDF document
+
+[View Demo](https://jussiniinikoski.github.io/pack-pdf-demo/)
 
 ## How to generate an example PDF
 
