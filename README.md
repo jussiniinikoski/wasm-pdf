@@ -5,7 +5,7 @@ The aim of this project is to make a WASM PDF generator library, which is able t
 
 Idea behind this project was to push all the work creating a PDF to the client side.
 
-**This library is working, but is also at a prototype stage (Work In Progress), so I don't recommend using it in anything serious yet.**
+**This library is working, but is also Work In Progress, so I don't recommend using it in anything serious yet.**
 
 ## How to generate an example PDF
 
