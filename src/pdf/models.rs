@@ -80,7 +80,8 @@ impl Content for Paragraph {
     }
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
         let (encoded_lines, _text_lines) = Text::get_text_lines(&self, &self.text, area.0);
-        let height = self.style.leading * encoded_lines.len() as f32;
+        let vertical_padding = self.style.padding.0 + self.style.padding.2;
+        let height = self.style.leading * encoded_lines.len() as f32 + vertical_padding;
         let width = Text::get_text_width(&self, &self.text, area.0);
         (width, height)
     }

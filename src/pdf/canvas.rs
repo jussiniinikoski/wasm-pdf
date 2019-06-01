@@ -327,7 +327,8 @@ impl Canvas {
         self.save_state();
         self.translate(self.cursor.0 + padding_left, self.cursor.1);
         self.save_state();
-        self.set_fill_color(0 as f32, 0 as f32, 0 as f32);
+        let color = paragraph.style.color;
+        self.set_fill_color(color.r, color.g, color.b);
         let mut out_text: Vec<u8> = Vec::new();
         if let Some(bullet) = &paragraph.style.bullet {
             let mut bullet_text: Vec<u8> = Vec::new();

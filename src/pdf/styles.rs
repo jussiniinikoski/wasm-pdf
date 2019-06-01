@@ -64,7 +64,8 @@ pub struct ParagraphStyle {
     pub align: HorizontalAlign,
     pub bullet: Option<String>,
     pub bullet_indent: f32,
-    pub padding: (f32, f32, f32, f32)
+    pub padding: (f32, f32, f32, f32),
+    pub color: Color
 }
 
 impl ParagraphStyle {
@@ -72,13 +73,15 @@ impl ParagraphStyle {
         align: HorizontalAlign,
         bullet: Option<String>,
         bullet_indent: f32,
-        padding: (f32, f32, f32, f32)) -> ParagraphStyle {
+        padding: (f32, f32, f32, f32),
+        color: Color) -> ParagraphStyle {
         ParagraphStyle {
             leading,
             align,
             bullet,
             bullet_indent,
-            padding
+            padding,
+            color
         }
     }
 }
@@ -93,7 +96,7 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
     } else {
         p_font_size + 2.0
     };
-    let p_padding = get_paragraph_padding(&content);
+    let p_padding = get_paragraph_padding(&content, p_font_size);
     let p_align = if let Some(text_align) = content.params.get("align") {
         if let JsParamValue::Text(text_align) = text_align {
             match text_align.as_str() {
@@ -124,19 +127,29 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
     } else {
         0.0
     };
+    let p_color = if let Some(color) = content.params.get("color") {
+            if let Some(rgb_color) = get_color(color) {
+                rgb_color
+            } else {
+                Color::new(0.0, 0.0, 0.0)
+            }
+    } else {
+        Color::new(0.0, 0.0, 0.0)
+    };
     ParagraphStyle {
         leading: p_leading,
         align: p_align,
         bullet: p_bullet,
         bullet_indent: p_bullet_indent,
-        padding: p_padding
+        padding: p_padding,
+        color: p_color
     }
 }
 
-fn get_paragraph_padding(content: &JsContent) -> (f32, f32, f32, f32) {
-    let mut padding_top = 0.0;
+fn get_paragraph_padding(content: &JsContent, font_size: f32) -> (f32, f32, f32, f32) {
+    let mut padding_top = font_size / 2.0;
     let mut padding_left = 0.0;
-    let mut padding_bottom = 0.0;
+    let mut padding_bottom = font_size / 2.0;
     let mut padding_right = 0.0;
     if let Some(padding) = content.params.get("padding") {
         if let JsParamValue::Object(padding) = padding {
