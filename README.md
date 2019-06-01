@@ -14,7 +14,7 @@ Idea behind this project is to push all the work creating a PDF to the client si
 * Change to directory: ```cd pack-pdf```
 * Install JavaScript libraries: ```npm install```
 * Launch the local development server: ```npm run serve```
-* Visit the url provided by the server, usually ```http://localhost:8080```
+* Open your browser and visit the url provided by the server, usually ```http://localhost:8080```
 
 ## License
 
