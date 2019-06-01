@@ -1,11 +1,15 @@
 # PACK-PDF
 ## Generate PDF files from JSON with WASM (WebAssembly).
 
-The aim of this project is to make a WASM PDF generator library, which is able to generate simple PDF files with ease and also a bit more complicated PDF's with tables etc.
+The aim of this project is to make a WASM PDF generator library, which is able to generate simple PDF files with ease and also a bit more complicated PDF's with tables and graphics.
 
-Idea behind this project is to push all the work creating a PDF to the client side, instead of using server resources to do it.
+Idea behind this project is to push all the work involved in creating a PDF to the client side, instead of using precious server resources.
 
 **This library is working, but is also Work In Progress, so I don't recommend using it in anything serious yet.**
+
+## Demo
+
+To be disclosed at a later date
 
 ## How to generate an example PDF
 
