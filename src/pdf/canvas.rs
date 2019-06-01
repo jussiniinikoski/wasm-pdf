@@ -117,6 +117,7 @@ impl Canvas {
         table: &Table,
         row: &Row,
         table_cursor: (f32, f32),
+        is_first_row: bool,
         new_page: bool,
     ) -> Result<(), JsValue> {
         let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
@@ -159,7 +160,8 @@ impl Canvas {
                     }
                     // Cell content doesn't fit, open new page
                     self.save_page();
-                    return self.draw_table_row(table, row, table_cursor, true);
+                    // New row on page is always first row.
+                    return self.draw_table_row(table, row, table_cursor, true, true);
                 }
                 // Add content height to cell height.
                 cell_height += actual_height;
@@ -189,8 +191,10 @@ impl Canvas {
         // Add top and bottom lines
         if let Some(r1) = cell_rects.first() {
             if let Some(r2) = cell_rects.last() {
-                let top_line = Line::new(r1.x, r1.y, r2.x + r2.w, r2.y);
-                grid_lines.push(top_line);
+                if is_first_row {
+                    let top_line = Line::new(r1.x, r1.y, r2.x + r2.w, r2.y);
+                    grid_lines.push(top_line);
+                }
                 let bottom_line = Line::new(r1.x, r1.y - r1.h, r2.x + r2.w, r2.y - r2.h);
                 grid_lines.push(bottom_line);
             }
@@ -251,8 +255,10 @@ impl Canvas {
     pub fn draw_table(&mut self, table: &Table) -> Result<(), JsValue> {
         let table_cursor = self.cursor;
         // Render rows individually (may render on separate pages).
+        let mut is_first_row = true;
         for row in &table.rows {
-            self.draw_table_row(table, row, table_cursor, false)?
+            self.draw_table_row(table, row, table_cursor, is_first_row, false)?;
+            is_first_row = false;
         }
         self.set_cursor(table_cursor.0, self.cursor.1);
         Ok(())
