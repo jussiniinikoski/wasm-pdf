@@ -1,12 +1,12 @@
 [package]
-name = "pack-pdf"
+name = "wasm-pdf"
 version = "0.1.0"
 authors = ["Jussi Niinikoski <jussi.niinikoski@perjantai.fi>"]
-description = "WIP: Generate PDF file from JSON with WebAssembly"
+description = "WIP: Generate PDF file with JavaScript and WebAssembly"
 keywords = ["wasm", "pdf"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/jussiniinikoski/pack-pdf/"
+repository = "https://github.com/jussiniinikoski/wasm-pdf/"
 edition = "2018"
 
 [lib]

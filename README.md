@@ -1,4 +1,4 @@
-# PACK-PDF
+# WASM-PDF
 ## Generates PDF files directly in the browser with JavaScript and WASM (WebAssembly).
 
 Idea here is to push all the work involved in creating a PDF to the browser side, instead of using precious server resources.
@@ -9,7 +9,7 @@ Idea here is to push all the work involved in creating a PDF to the browser side
 
 Example that generates a sample PDF document
 
-**[View Demo](https://jussiniinikoski.github.io/pack-pdf-demo/)**
+**[View Demo](https://jussiniinikoski.github.io/wasm-pdf-demo/)**
 
 ## How to generate an example PDF
 

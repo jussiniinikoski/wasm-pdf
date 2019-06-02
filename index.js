@@ -1,7 +1,7 @@
-const pack_pdf = import('./pkg/pack_pdf');
+const wasm_pdf = import('./pkg/wasm_pdf');
 
 const createPDF = (jsDocument) => {
-    pack_pdf.then(pdf => {
+    wasm_pdf.then(pdf => {
         const imagePaths = parseJsDoc(jsDocument.contents);
         fetchImagePaths(imagePaths).then((imgData) => {
             // add base64 encoded bytes to document

@@ -1,5 +1,5 @@
 {
-  "name": "pack-pdf",
+  "name": "wasm-pdf",
   "version": "1.0.0",
   "description": "Generates PDF file from JSON with WebAssembly.",
   "repository": {
