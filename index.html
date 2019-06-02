@@ -17,6 +17,10 @@
                     return response.json();
                 })
                 .then(doc => {
+                    // Change the title to show date (now)
+                    let date = new Date().toLocaleString();
+                    let title = doc.contents[0].params;
+                    title.text += " (created: " + date + ")";
                     createPDF(doc);
                 });
         });
