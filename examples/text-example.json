@@ -118,7 +118,7 @@
                                     {
                                         "obj_type": "Image",
                                         "params": {
-                                            "src": "/pack-pdf-demo/pizza.jpg",
+                                            "src": "/examples/pizza.jpg",
                                             "fit_width": true
                                         }
                                     },
