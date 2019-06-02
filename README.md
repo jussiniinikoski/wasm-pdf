@@ -14,8 +14,8 @@ Example that generates a sample PDF document
 ## How to generate an example PDF
 
 * First install [the Rust compiler](https://www.rust-lang.org)
-* Clone this repo:```git clone https://github.com/jussiniinikoski/pack-pdf.git```
-* Change to directory: ```cd pack-pdf```
+* Clone this repo:```git clone https://github.com/jussiniinikoski/wasm-pdf.git```
+* Change to directory: ```cd wasm-pdf```
 * Install JavaScript libraries: ```npm install```
 * Launch the local development server: ```npm run serve```
 * Open your browser and visit the url provided by the server, usually ```http://localhost:8080```
