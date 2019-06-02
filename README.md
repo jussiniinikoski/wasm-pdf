@@ -3,7 +3,7 @@
 
 Idea here is to push all the work involved in creating a PDF to the browser side, instead of using precious server resources.
 
-**This library is working, but is also Work In Progress, so I don't recommend using it in anything serious yet.**
+**This is still very early stage Work In Progress, so breaking changes are expected.**
 
 ## Demo
 
