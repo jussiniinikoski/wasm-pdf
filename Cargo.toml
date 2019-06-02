@@ -2,7 +2,7 @@
 name = "wasm-pdf"
 version = "0.1.0"
 authors = ["Jussi Niinikoski <jussi.niinikoski@perjantai.fi>"]
-description = "WIP: Generate PDF file with JavaScript and WebAssembly"
+description = "Generate PDF files with JavaScript and WebAssembly."
 keywords = ["wasm", "pdf"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
