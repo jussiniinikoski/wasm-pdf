@@ -12,9 +12,12 @@ mod template;
 mod text;
 mod units;
 
-use json::{JsContent, JsDocument, JsParamValue};
+use json::{
+    get_bool_from_js, get_number_from_js, get_text_from_js, 
+    JsContent, JsDocument, JsParamValue,
+};
 use models::{Cell, Document, Image, Paragraph, Row, Spacer, Table};
-use styles::{get_color, get_table_style, get_paragraph_style};
+use styles::{get_color, get_paragraph_style, get_table_style};
 use template::PageTemplate;
 
 #[wasm_bindgen]
@@ -73,14 +76,7 @@ fn get_table(content: &JsContent, js_doc: &JsDocument) -> Result<Table, JsValue>
                     if let JsParamValue::Children(cells) = cells {
                         //log(&format!("number of cells: {}", cells.len()));
                         for cell in cells {
-                            let cell_span = if let Some(span) = cell.params.get("span") {
-                                match span {
-                                    JsParamValue::Number(i) => *i,
-                                    _ => 1.0,
-                                }
-                            } else {
-                                1.0
-                            };
+                            let cell_span = get_number_from_js(cell.params.get("span"), 1.0);
                             let mut c = Cell::new(cell_span);
                             if let Some(cell_contents) = cell.params.get("contents") {
                                 if let JsParamValue::Children(contents) = cell_contents {
@@ -121,15 +117,7 @@ fn get_table(content: &JsContent, js_doc: &JsDocument) -> Result<Table, JsValue>
 }
 
 fn get_image(content: &JsContent, js_doc: &JsDocument) -> Option<Image> {
-    let fit_width = if let Some(fit_width) = content.params.get("fit_width") {
-        if let JsParamValue::Boolean(fit_width) = fit_width {
-            *fit_width
-        } else {
-            false
-        }
-    } else {
-        false
-    };
+    let fit_width = get_bool_from_js(content.params.get("fit_width"), false);
     if let Some(src) = content.params.get("src") {
         if let JsParamValue::Text(s) = src {
             if let Some(image_data_str) = js_doc.image_data.get(s) {
@@ -153,56 +141,15 @@ fn get_image(content: &JsContent, js_doc: &JsDocument) -> Option<Image> {
 }
 
 fn get_spacer(content: &JsContent) -> Spacer {
-    let p_width = if let Some(width) = content.params.get("width") {
-        match width {
-            JsParamValue::Number(i) => *i,
-            _ => 0.0,
-        }
-    } else {
-        0.0
-    };
-    let p_height = if let Some(height) = content.params.get("height") {
-        match height {
-            JsParamValue::Number(i) => *i,
-            _ => 0.0,
-        }
-    } else {
-        0.0
-    };
+    let p_width = get_number_from_js(content.params.get("width"), 0.0);
+    let p_height = get_number_from_js(content.params.get("height"), 0.0);
     Spacer::new(p_width, p_height)
 }
 
 fn get_paragraph(content: &JsContent) -> Paragraph {
-    let p_font_name = if let Some(font_name) = content.params.get("font_name") {
-        match font_name {
-            JsParamValue::Text(s) => s.clone(),
-            _ => String::from("Helvetica"),
-        }
-    } else {
-        String::from("Helvetica")
-    };
-    let p_font_size = if let Some(font_size) = content.params.get("font_size") {
-        if let JsParamValue::Number(font_size) = font_size {
-            *font_size
-        } else {
-            12.0
-        }
-    } else {
-        12.0
-    };
+    let p_font_name = get_text_from_js(content.params.get("font_name"), "Helvetica");
+    let p_font_size = get_number_from_js(content.params.get("font_size"), 12.0);
     let p_style = get_paragraph_style(&content, p_font_size);
-    let text_value = if let Some(text) = content.params.get("text") {
-        match text {
-            JsParamValue::Text(s) => s.clone(),
-            _ => String::new(),
-        }
-    } else {
-        String::new()
-    };
-    Paragraph::new(
-        &text_value,
-        &p_font_name,
-        p_font_size,
-        p_style
-    )
+    let text_value = get_text_from_js(content.params.get("text"), "");
+    Paragraph::new(&text_value, &p_font_name, p_font_size, p_style)
 }

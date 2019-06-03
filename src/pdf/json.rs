@@ -52,3 +52,36 @@ fn default_image_data() -> HashMap<String, String> {
 fn default_image_sizes() -> HashMap<String, f32> {
     HashMap::new()
 }
+
+pub fn get_number_from_js(value: Option<&JsParamValue>, default: f32) -> f32 {
+    if let Some(value) = value {
+        match value {
+            JsParamValue::Number(i) => *i,
+            _ => default,
+        }
+    } else {
+        default
+    }
+}
+
+pub fn get_text_from_js(value: Option<&JsParamValue>, default: &str) -> String {
+    if let Some(value) = value {
+        match value {
+            JsParamValue::Text(t) => t.clone(),
+            _ => String::from(default),
+        }
+    } else {
+        String::from(default)
+    }
+}
+
+pub fn get_bool_from_js(value: Option<&JsParamValue>, default: bool) -> bool {
+    if let Some(value) = value {
+        match value {
+            JsParamValue::Boolean(b) => *b,
+            _ => default,
+        }
+    } else {
+        default
+    }
+}

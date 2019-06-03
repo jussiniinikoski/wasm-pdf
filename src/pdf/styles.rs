@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use super::units::Color;
-use super::json::{JsParamValue, JsContent};
+use super::json::{JsParamValue, JsContent, get_number_from_js};
 
 #[derive(Debug, Clone, Copy)]
 pub enum VerticalAlign {
@@ -87,15 +87,7 @@ impl ParagraphStyle {
 }
 
 pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphStyle {
-    let p_leading = if let Some(leading) = content.params.get("leading") {
-        if let JsParamValue::Number(leading) = leading {
-            *leading
-        } else {
-            p_font_size + 2.0
-        }
-    } else {
-        p_font_size + 2.0
-    };
+    let p_leading = get_number_from_js(content.params.get("leading"), p_font_size + 2.0);
     let p_padding = get_paragraph_padding(&content, p_font_size);
     let p_align = if let Some(text_align) = content.params.get("align") {
         if let JsParamValue::Text(text_align) = text_align {
@@ -118,15 +110,7 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
     } else {
         None
     };
-    let p_bullet_indent = if let Some(bullet_indent) = content.params.get("bullet_indent") {
-        if let JsParamValue::Number(bullet_indent) = bullet_indent {
-            *bullet_indent
-        } else {
-            0.0
-        }
-    } else {
-        0.0
-    };
+    let p_bullet_indent = get_number_from_js(content.params.get("bullet_indent"), 0.0);
     let p_color = if let Some(color) = content.params.get("color") {
             if let Some(rgb_color) = get_color(color) {
                 rgb_color
