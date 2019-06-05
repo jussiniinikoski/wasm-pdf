@@ -237,9 +237,17 @@ impl Canvas {
                 }
                 _ => table.style.padding_top,
             };
-            // Account for table cell padding
-            self.set_cursor(cell_cursor.0 + offset_left, cell_cursor.1 - offset_top);
+            // Set vertical offset
+            self.cursor.1 = cell_cursor.1 - offset_top;
             for content in &cell.contents {
+                if let Some(_) = content.as_any().downcast_ref::<Paragraph>() {
+                    // Don't offset Paragraph objects, since they have their own
+                    // alignment styles.
+                    self.cursor.0 = cell_cursor.0 + table.style.padding_left;
+                } else {
+                    // Set horizontal offset
+                    self.cursor.0 = cell_cursor.0 + offset_left;
+                }
                 content.draw(self, cell_width - horizontal_padding)?
             }
             cell_cursor.0 += cell_width;

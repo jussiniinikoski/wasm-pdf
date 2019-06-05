@@ -26,3 +26,6 @@ version = "0.3.22"
 features = [
   'Window',
 ]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.2"

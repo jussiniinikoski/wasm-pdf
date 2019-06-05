@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use wasm_bindgen::prelude::*;
-
+use std::any::Any;
 use super::canvas::Canvas;
 use super::font::{
     courier, courier_bold, courier_bold_oblique, courier_oblique, helvetica, helvetica_bold,
@@ -15,6 +15,8 @@ pub trait Content {
     fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), JsValue>;
     // wrap element, takes available width, height and returns actual width, height
     fn wrap(&self, area: (f32, f32)) -> (f32, f32);
+    // allow downcasting to concrete type
+    fn as_any(&self) -> &dyn Any;
 }
 
 pub struct Document {
@@ -85,6 +87,9 @@ impl Content for Paragraph {
         let width = Text::get_text_width(&self, &self.text, area.0);
         (width, height)
     }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 pub struct Spacer {
@@ -104,6 +109,9 @@ impl Content for Spacer {
     }
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
         (area.0, self.height)
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
@@ -141,6 +149,9 @@ impl Content for Image {
             self.height
         };
         (width, height)
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
@@ -200,5 +211,8 @@ impl Content for Table {
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
         // table is just a placeholder for keeping rows
         (area.0, area.1)
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
