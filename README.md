@@ -5,11 +5,11 @@ Idea here is to push all the work involved in creating a PDF to the browser side
 
 ## Demo
 
-Example that generates a sample PDF document
+### Example that generates a sample PDF document
 
 **[View Demo 1](https://jussiniinikoski.github.io/wasm-pdf-demo/)** (Beware that this example generates the PDF directly to the browser window, so 2 steps back are needed to return back to this page.)
 
-Another example that generates downloadable PDF to a link with extra 400 paragraphs of Lorem Ipsum..
+### Another example that generates downloadable PDF to a link with extra 400 paragraphs of Lorem Ipsum..
 
 **[View Demo 2](https://jussiniinikoski.github.io/wasm-pdf-demo/example2.html)**
 
