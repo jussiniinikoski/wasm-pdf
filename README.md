@@ -13,7 +13,7 @@ Example that generates a sample PDF document
 
 ## How to generate an example PDF
 
-**Option 1 (with Rust)**
+### Option 1 (with Rust)
 * First install [the Rust compiler](https://www.rust-lang.org)
 * Clone this repo:```git clone https://github.com/jussiniinikoski/wasm-pdf.git```
 * Change to directory: ```cd wasm-pdf```
@@ -21,8 +21,14 @@ Example that generates a sample PDF document
 * Launch the local development server: ```npm run serve```
 * Open your browser and visit the url provided by the server, usually ```http://localhost:8080```
 
-**Option 2 (with JavaScript only / npm package)**
+### Option 2 (with JavaScript only / npm package)
 * Go to [starter template repo](https://github.com/jussiniinikoski/wasm-pdf-app/)
+
+## Special Thanks
+
+* [rustwasm/wasm-bindgen](https://github.com/rustwasm/wasm-bindgen)
+* [kaj/rust-pdf](https://github.com/kaj/rust-pdf)
+* [emreyaren/zero85](https://github.com/emreyaren/zero85)
 
 ## License
 
