@@ -233,7 +233,7 @@ impl PDFFile {
         let mut output = Vec::new();
         output.write_all(b"%PDF-1.4").unwrap();
         output
-            .write_all(b"\n%\x93\x8C\x8B\x9E PackPDF WASM library\n")
+            .write_all(b"\n%\x93\x8C\x8B\x9E WASM-PDF library\n")
             .unwrap();
         PDFFile {
             contents: output,
