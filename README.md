@@ -6,10 +6,12 @@ Idea here is to push all the work involved in creating a PDF to the browser side
 ## Demo
 
 Example that generates a sample PDF document
-<a href="https://jussiniinikoski.github.io/wasm-pdf-demo/" target="_blank">View Demo 1</a>
+
+**<a href="https://jussiniinikoski.github.io/wasm-pdf-demo/" target="_blank">View Demo 1</a>**
 
 Another example that generates downloadable PDF to a link with extra 400 paragraphs of Lorem Ipsum..
-<a href="https://jussiniinikoski.github.io/wasm-pdf-demo/example2.html" target="_blank">View Demo 2</a>
+
+**<a href="https://jussiniinikoski.github.io/wasm-pdf-demo/example2.html" target="_blank">View Demo 2</a>**
 
 ## Features
 
