@@ -1,14 +1,14 @@
 #![allow(dead_code)]
-use wasm_bindgen::prelude::*;
-use std::any::Any;
 use super::canvas::Canvas;
 use super::font::{
     courier, courier_bold, courier_bold_oblique, courier_oblique, helvetica, helvetica_bold,
     helvetica_bold_oblique, helvetica_oblique, times_bold, times_bold_italic, times_italic,
     times_roman, Font,
 };
-use super::styles::{CellStyle, TableStyle, ParagraphStyle};
+use super::styles::{CellStyle, ParagraphStyle, TableStyle};
 use super::text::Text;
+use std::any::Any;
+use wasm_bindgen::prelude::*;
 
 // Content Trait is the center piece here.
 pub trait Content {
@@ -43,16 +43,11 @@ pub struct Paragraph {
     pub text: String,
     pub font_size: f32,
     pub font: &'static Font,
-    pub style: ParagraphStyle
+    pub style: ParagraphStyle,
 }
 
 impl Paragraph {
-    pub fn new(
-        text: &str,
-        font_name: &str,
-        font_size: f32,
-        style: ParagraphStyle
-    ) -> Paragraph {
+    pub fn new(text: &str, font_name: &str, font_size: f32, style: ParagraphStyle) -> Paragraph {
         Paragraph {
             text: String::from(text),
             font_size,
@@ -71,7 +66,7 @@ impl Paragraph {
                 "times-bold-italic" => times_bold_italic(),
                 _ => helvetica(), // default font
             },
-            style
+            style,
         }
     }
 }

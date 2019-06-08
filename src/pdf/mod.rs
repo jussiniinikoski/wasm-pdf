@@ -13,8 +13,7 @@ mod text;
 mod units;
 
 use json::{
-    get_bool_from_js, get_number_from_js, get_text_from_js, 
-    JsContent, JsDocument, JsParamValue,
+    get_bool_from_js, get_number_from_js, get_text_from_js, JsContent, JsDocument, JsParamValue,
 };
 use models::{Cell, Document, Image, Paragraph, Row, Spacer, Table};
 use styles::{get_color, get_paragraph_style, get_table_style};

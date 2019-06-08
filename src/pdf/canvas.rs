@@ -253,7 +253,7 @@ impl Canvas {
             cell_cursor.0 += cell_width;
             self.set_cursor(cell_cursor.0, cell_cursor.1);
         }
-        self.set_cursor(row_cursor.0, row_cursor.1 - row_height- vertical_padding);
+        self.set_cursor(row_cursor.0, row_cursor.1 - row_height - vertical_padding);
         // Draw grid lines if so configured
         if table.style.grid_visible {
             self.draw_lines(grid_lines, table);
@@ -355,8 +355,7 @@ impl Canvas {
             self.output.write_all(&stream).unwrap();
         }
         // get lines as encoded and pure text
-        let (encoded_lines, text_lines) =
-            Text::get_text_lines(paragraph, text, available_width);
+        let (encoded_lines, text_lines) = Text::get_text_lines(paragraph, text, available_width);
         let mut next_page_lines: Vec<String> = Vec::new();
         let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
         let mut break_page = false;

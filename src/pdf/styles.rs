@@ -1,20 +1,20 @@
 #![allow(dead_code)]
 
+use super::json::{get_number_from_js, JsContent, JsParamValue};
 use super::units::Color;
-use super::json::{JsParamValue, JsContent, get_number_from_js};
 
 #[derive(Debug, Clone, Copy)]
 pub enum VerticalAlign {
     Top,
     Middle,
-    Bottom
+    Bottom,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum HorizontalAlign {
     Left,
     Center,
-    Right
+    Right,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -27,7 +27,7 @@ pub struct TableStyle {
     pub padding_bottom: f32,
     pub padding_right: f32,
     pub vertical_align: VerticalAlign,
-    pub horizontal_align: HorizontalAlign
+    pub horizontal_align: HorizontalAlign,
 }
 
 impl TableStyle {
@@ -41,20 +41,20 @@ impl TableStyle {
             padding_bottom: 0.0,
             padding_right: 0.0,
             vertical_align: VerticalAlign::Top,
-            horizontal_align: HorizontalAlign::Left
+            horizontal_align: HorizontalAlign::Left,
         }
     }
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct CellStyle {
-    pub background_color: Option<(Color)>
+    pub background_color: Option<(Color)>,
 }
 
 impl CellStyle {
     pub fn new() -> CellStyle {
         CellStyle {
-            background_color: None
+            background_color: None,
         }
     }
 }
@@ -65,23 +65,25 @@ pub struct ParagraphStyle {
     pub bullet: Option<String>,
     pub bullet_indent: f32,
     pub padding: (f32, f32, f32, f32),
-    pub color: Color
+    pub color: Color,
 }
 
 impl ParagraphStyle {
-    pub fn new(leading: f32,
+    pub fn new(
+        leading: f32,
         align: HorizontalAlign,
         bullet: Option<String>,
         bullet_indent: f32,
         padding: (f32, f32, f32, f32),
-        color: Color) -> ParagraphStyle {
+        color: Color,
+    ) -> ParagraphStyle {
         ParagraphStyle {
             leading,
             align,
             bullet,
             bullet_indent,
             padding,
-            color
+            color,
         }
     }
 }
@@ -112,11 +114,11 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
     };
     let p_bullet_indent = get_number_from_js(content.params.get("bullet_indent"), 0.0);
     let p_color = if let Some(color) = content.params.get("color") {
-            if let Some(rgb_color) = get_color(color) {
-                rgb_color
-            } else {
-                Color::new(0.0, 0.0, 0.0)
-            }
+        if let Some(rgb_color) = get_color(color) {
+            rgb_color
+        } else {
+            Color::new(0.0, 0.0, 0.0)
+        }
     } else {
         Color::new(0.0, 0.0, 0.0)
     };
@@ -126,7 +128,7 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
         bullet: p_bullet,
         bullet_indent: p_bullet_indent,
         padding: p_padding,
-        color: p_color
+        color: p_color,
     }
 }
 
@@ -213,10 +215,10 @@ fn get_align(table_style: &mut TableStyle, align: &JsParamValue) {
                 match horizontal.as_str() {
                     "center" => {
                         table_style.horizontal_align = HorizontalAlign::Center;
-                    },
+                    }
                     "right" => {
                         table_style.horizontal_align = HorizontalAlign::Right;
-                    },
+                    }
                     _ => {
                         table_style.horizontal_align = HorizontalAlign::Left;
                     }
@@ -228,10 +230,10 @@ fn get_align(table_style: &mut TableStyle, align: &JsParamValue) {
                 match vertical.as_str() {
                     "bottom" => {
                         table_style.vertical_align = VerticalAlign::Bottom;
-                    },
+                    }
                     "middle" => {
                         table_style.vertical_align = VerticalAlign::Middle;
-                    },
+                    }
                     _ => {
                         table_style.vertical_align = VerticalAlign::Top;
                     }
@@ -269,14 +271,14 @@ pub fn get_color(color_arr: &JsParamValue) -> Option<Color> {
                 match index {
                     0 => {
                         rgb_color.r = *color;
-                    },
+                    }
                     1 => {
                         rgb_color.g = *color;
-                    },
+                    }
                     2 => {
                         rgb_color.b = *color;
-                    },
-                    _ => ()
+                    }
+                    _ => (),
                 }
             }
         }
