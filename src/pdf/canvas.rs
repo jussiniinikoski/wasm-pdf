@@ -240,7 +240,7 @@ impl Canvas {
             // Set vertical offset
             self.cursor.1 = cell_cursor.1 - offset_top;
             for content in &cell.contents {
-                if let Some(_) = content.as_any().downcast_ref::<Paragraph>() {
+                if content.as_any().downcast_ref::<Paragraph>().is_some() {
                     // Don't offset Paragraph objects, since they have their own
                     // alignment styles.
                     self.cursor.0 = cell_cursor.0 + table.style.padding_left;
