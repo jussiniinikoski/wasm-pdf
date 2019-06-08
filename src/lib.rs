@@ -3,6 +3,7 @@ use wasm_bindgen::prelude::*;
 extern crate serde_derive;
 #[macro_use]
 extern crate lazy_static;
+extern crate console_error_panic_hook;
 
 mod pdf;
 use pdf::json::JsDocument;
@@ -16,6 +17,8 @@ extern "C" {
 
 #[wasm_bindgen]
 pub fn run(json: &JsValue) -> Result<(), JsValue> {
+    // output panics to console.error
+    console_error_panic_hook::set_once();
     let js_doc: JsDocument = match json.into_serde() {
         Ok(doc) => doc,
         Err(e) => {

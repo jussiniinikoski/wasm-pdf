@@ -30,7 +30,9 @@ pub struct JsTemplate {
 
 #[derive(Serialize, Deserialize)]
 pub struct JsDocument {
+    #[serde(default = "default_title")]
     pub title: String,
+    #[serde(default = "default_template")]
     pub template: JsTemplate,
     pub contents: Vec<JsContent>,
     #[serde(default = "default_image_data")]
@@ -39,6 +41,19 @@ pub struct JsDocument {
     pub image_widths: HashMap<String, f32>,
     #[serde(default = "default_image_sizes")]
     pub image_heights: HashMap<String, f32>,
+}
+
+fn default_title() -> String {
+    "Untitled".to_string()
+}
+
+fn default_template() -> JsTemplate {
+    JsTemplate {
+        top: 50.0,
+        left: 50.0,
+        bottom: 50.0,
+        right: 50.0
+    }
 }
 
 fn default_obj_type() -> String {
