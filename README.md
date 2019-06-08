@@ -1,6 +1,8 @@
 # WASM-PDF
 ## Generates PDF files directly in the browser with JavaScript and WASM (WebAssembly).
 
+[![Build Status](https://travis-ci.org/jussiniinikoski/wasm-pdf.svg?branch=master)](https://travis-ci.org/jussiniinikoski/wasm-pdf)
+
 Idea here is to push all the work involved in creating a PDF to the browser side, instead of using precious server resources.
 
 ## Demo
