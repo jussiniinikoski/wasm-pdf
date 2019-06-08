@@ -52,7 +52,7 @@ fn default_template() -> JsTemplate {
         top: 50.0,
         left: 50.0,
         bottom: 50.0,
-        right: 50.0
+        right: 50.0,
     }
 }
 
