@@ -30,7 +30,7 @@ extern "C" {
 pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, JsValue> {
     // add document content to template and build
     let template = PageTemplate::new(
-        units::A4,
+        js_doc.template.size,
         js_doc.template.top,
         js_doc.template.left,
         js_doc.template.right,

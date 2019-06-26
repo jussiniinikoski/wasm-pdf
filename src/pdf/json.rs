@@ -1,3 +1,4 @@
+use super::units::A4;
 use std::collections::HashMap;
 
 /// Parameter values from JSON
@@ -22,6 +23,8 @@ pub struct JsContent {
 
 #[derive(Serialize, Deserialize)]
 pub struct JsTemplate {
+    #[serde(default = "default_template_size")]
+    pub size: (f32, f32),
     pub top: f32,
     pub left: f32,
     pub right: f32,
@@ -49,11 +52,16 @@ fn default_title() -> String {
 
 fn default_template() -> JsTemplate {
     JsTemplate {
+        size: A4,
         top: 50.0,
         left: 50.0,
         bottom: 50.0,
         right: 50.0,
     }
+}
+
+fn default_template_size() -> (f32, f32) {
+    A4
 }
 
 fn default_obj_type() -> String {
