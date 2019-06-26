@@ -25,19 +25,13 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Tables with rows and cells
   * Spacers (they just eat space)
   * Basic styling (all styling parameters are optional)
-  * Custom template size (defaults to A4 portrait)
+  * Custom template size (defaults to A4 portrait with 50 px margins)
 
 ## Example input (JSON)
 
 ```json
 {
     "title": "Example Document",
-    "template": {
-        "top": 50,
-        "left": 50,
-        "right": 50,
-        "bottom": 50
-    },
     "contents": [{
             "obj_type": "Paragraph",
             "params": {
