@@ -25,6 +25,7 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Tables with rows and cells
   * Spacers (they just eat space)
   * Basic styling (all styling parameters are optional)
+  * Custom template size (defaults to A4 portrait)
 
 ## Example input (JSON)
 
