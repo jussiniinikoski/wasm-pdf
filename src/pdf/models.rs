@@ -5,8 +5,9 @@ use super::font::{
     helvetica_bold_oblique, helvetica_oblique, times_bold, times_bold_italic, times_italic,
     times_roman, Font,
 };
-use super::styles::{CellStyle, ParagraphStyle, TableStyle};
+use super::styles::{CellStyle, ParagraphStyle, PathStyle, TableStyle};
 use super::text::Text;
+use super::units::{Color, Point};
 use std::any::Any;
 use wasm_bindgen::prelude::*;
 
@@ -206,6 +207,54 @@ impl Content for Table {
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
         // table is just a placeholder for keeping rows
         (area.0, area.1)
+    }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+
+pub struct Path {
+    pub points: Vec<Point>,
+    pub stroke_color: Option<Color>,
+    pub stroke_width: f32,
+    pub fill_color: Option<Color>,
+    pub width: f32,
+    pub height: f32,
+    pub style: PathStyle,
+}
+
+impl Path {
+    pub fn new(
+        points: Vec<Point>,
+        stroke_color: Option<Color>,
+        stroke_width: f32,
+        fill_color: Option<Color>,
+        style: PathStyle,
+    ) -> Path {
+        let min_x = points.iter().fold(std::f32::MAX, |acc, b| acc.min(b.x));
+        let max_x = points.iter().fold(std::f32::MIN, |acc, b| acc.max(b.x));
+        let width = max_x - min_x;
+        let min_y = points.iter().fold(std::f32::MAX, |acc, b| acc.min(b.y));
+        let max_y = points.iter().fold(std::f32::MIN, |acc, b| acc.max(b.y));
+        let height = max_y - min_y;
+        Path {
+            points,
+            stroke_color,
+            stroke_width,
+            fill_color,
+            width,
+            height,
+            style,
+        }
+    }
+}
+
+impl Content for Path {
+    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), JsValue> {
+        canvas.draw_path(&self, available_width)
+    }
+    fn wrap(&self, _area: (f32, f32)) -> (f32, f32) {
+        (self.width, self.height)
     }
     fn as_any(&self) -> &dyn Any {
         self

@@ -24,6 +24,7 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Images loaded from URL (converted automatically to bytes)
   * Tables with rows and cells
   * Spacers (they just eat space)
+  * Paths with points, strokes, fills and alignment
   * Basic styling (all styling parameters are optional)
   * Custom template size (defaults to A4 portrait with 50 px margins)
 

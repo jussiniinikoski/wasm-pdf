@@ -15,9 +15,10 @@ mod units;
 use json::{
     get_bool_from_js, get_number_from_js, get_text_from_js, JsContent, JsDocument, JsParamValue,
 };
-use models::{Cell, Document, Image, Paragraph, Row, Spacer, Table};
-use styles::{get_color, get_paragraph_style, get_table_style};
+use models::{Cell, Document, Image, Paragraph, Path, Row, Spacer, Table};
+use styles::{get_color, get_paragraph_style, get_path_style, get_table_style};
 use template::PageTemplate;
+use units::Point;
 
 #[wasm_bindgen]
 extern "C" {
@@ -57,6 +58,11 @@ pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, JsValue> {
                 let spacer = get_spacer(&content);
                 doc.add(Box::new(spacer));
             }
+            "Path" => {
+                if let Some(path) = get_path(&content) {
+                    doc.add(Box::new(path));
+                }
+            }
             _ => (),
         }
     }
@@ -90,6 +96,11 @@ fn get_table(content: &JsContent, js_doc: &JsDocument) -> Result<Table, JsValue>
                                                     get_image(&cell_content, &js_doc)
                                                 {
                                                     c.add(Box::new(image));
+                                                }
+                                            }
+                                            "Path" => {
+                                                if let Some(path) = get_path(&cell_content) {
+                                                    c.add(Box::new(path));
                                                 }
                                             }
                                             _ => (),
@@ -133,6 +144,41 @@ fn get_image(content: &JsContent, js_doc: &JsDocument) -> Option<Image> {
                 let image_data = base64::decode(&image_data_str).unwrap();
                 let image = Image::new(image_data, p_width, p_height, fit_width);
                 return Some(image);
+            }
+        }
+    }
+    None
+}
+
+fn get_path(content: &JsContent) -> Option<Path> {
+    let stroke_color = if let Some(color) = content.params.get("stroke_color") {
+        get_color(color)
+    } else {
+        None
+    };
+    let fill_color = if let Some(color) = content.params.get("fill_color") {
+        get_color(color)
+    } else {
+        None
+    };
+    let stroke_width = get_number_from_js(content.params.get("stroke_width"), 0.0);
+    if let Some(points) = content.params.get("points") {
+        if let JsParamValue::Array(js_points) = points {
+            let mut points: Vec<Point> = Vec::new();
+            for point in js_points {
+                if let JsParamValue::Array(js_point) = point {
+                    if let JsParamValue::Number(x) = js_point[0] {
+                        if let JsParamValue::Number(y) = js_point[1] {
+                            let p = Point { x, y };
+                            points.push(p);
+                        }
+                    }
+                }
+            }
+            if points.len() > 1 {
+                let style = get_path_style(&content);
+                let path = Path::new(points, stroke_color, stroke_width, fill_color, style);
+                return Some(path);
             }
         }
     }

@@ -27,7 +27,6 @@ pub struct TableStyle {
     pub padding_bottom: f32,
     pub padding_right: f32,
     pub vertical_align: VerticalAlign,
-    pub horizontal_align: HorizontalAlign,
 }
 
 impl TableStyle {
@@ -41,7 +40,19 @@ impl TableStyle {
             padding_bottom: 0.0,
             padding_right: 0.0,
             vertical_align: VerticalAlign::Top,
-            horizontal_align: HorizontalAlign::Left,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct PathStyle {
+    pub horizontal_align: HorizontalAlign,
+}
+
+impl PathStyle {
+    pub fn new() -> PathStyle {
+        PathStyle {
+            horizontal_align: HorizontalAlign::Center,
         }
     }
 }
@@ -183,6 +194,22 @@ pub fn get_table_style(content: &JsContent) -> TableStyle {
     table_style
 }
 
+pub fn get_path_style(content: &JsContent) -> PathStyle {
+    let mut path_style = PathStyle::new();
+    if let Some(align) = content.params.get("align") {
+        path_style.horizontal_align = if let JsParamValue::Text(path_align) = align {
+            match path_align.as_str() {
+                "right" => HorizontalAlign::Right,
+                "center" => HorizontalAlign::Center,
+                _ => HorizontalAlign::Left,
+            }
+        } else {
+            HorizontalAlign::Center
+        }
+    }
+    path_style
+}
+
 fn get_table_padding(table_style: &mut TableStyle, padding: &JsParamValue) {
     if let JsParamValue::Object(padding) = padding {
         if let Some(top) = padding.get("top") {
@@ -210,21 +237,6 @@ fn get_table_padding(table_style: &mut TableStyle, padding: &JsParamValue) {
 
 fn get_align(table_style: &mut TableStyle, align: &JsParamValue) {
     if let JsParamValue::Object(align) = align {
-        if let Some(horizontal) = align.get("horizontal") {
-            if let JsParamValue::Text(horizontal) = horizontal {
-                match horizontal.as_str() {
-                    "center" => {
-                        table_style.horizontal_align = HorizontalAlign::Center;
-                    }
-                    "right" => {
-                        table_style.horizontal_align = HorizontalAlign::Right;
-                    }
-                    _ => {
-                        table_style.horizontal_align = HorizontalAlign::Left;
-                    }
-                }
-            }
-        }
         if let Some(vertical) = align.get("vertical") {
             if let JsParamValue::Text(vertical) = vertical {
                 match vertical.as_str() {

@@ -39,7 +39,6 @@
                         "bottom": 5.0
                     },
                     "align": {
-                        "horizontal": "center",
                         "vertical": "middle"
                     }
                 },
@@ -172,6 +171,41 @@
                                             }
                                         }
                                     ]
+                                }
+                            }]
+                        }
+                    },
+                    {
+                        "obj_type": "Row",
+                        "params": {
+                            "cells": [{
+                                "obj_type": "Cell",
+                                "params": {
+                                    "contents": [{
+                                        "obj_type": "Path",
+                                        "params": {
+                                            "points": [
+                                                [0, 20],
+                                                [0, 0],
+                                                [30, 0],
+                                                [30, 20],
+                                                [15, 30]
+                                            ],
+                                            "stroke_color": [1, 0, 0],
+                                            "stroke_width": 2.0,
+                                            "fill_color": [0, 0, 1],
+                                            "align": "center"
+                                        }
+                                    },
+                                    {
+                                        "obj_type": "Paragraph",
+                                            "params": {
+                                                "text": "Here is a custom path",
+                                                "align": "center",
+                                                "color": [0.6, 0, 0]
+                                            }
+                                    }
+                                ]
                                 }
                             }]
                         }

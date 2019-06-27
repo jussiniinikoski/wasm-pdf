@@ -3,7 +3,7 @@ use std::io::Write;
 use std::str;
 use wasm_bindgen::prelude::*;
 
-use super::models::{Cell, Image, Paragraph, Row, Spacer, Table};
+use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Table};
 use super::objects::{PDFDocument, PDFImage, PDFPage};
 use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
@@ -100,6 +100,42 @@ impl Canvas {
         self.save_state();
         self.translate(self.cursor.0, self.cursor.1);
         self.restore_state();
+        Ok(())
+    }
+    pub fn draw_path(&mut self, path: &Path, available_width: f32) -> Result<(), JsValue> {
+        let pos_x = match path.style.horizontal_align {
+            HorizontalAlign::Left => self.cursor.0,
+            HorizontalAlign::Center => self.cursor.0 + (available_width - path.width) / 2.0,
+            _ => self.cursor.0 + available_width - path.width,
+        };
+        self.save_state();
+        self.translate(pos_x, self.cursor.1 - path.height);
+        if let Some(stroke_color) = path.stroke_color {
+            self.set_stroke_color(stroke_color.r, stroke_color.g, stroke_color.b);
+        }
+        if let Some(fill_color) = path.fill_color {
+            self.set_fill_color(fill_color.r, fill_color.g, fill_color.b);
+        }
+        self.set_line_width(path.stroke_width);
+        let mut init_point_drawn = false;
+        for point in &path.points {
+            if !init_point_drawn {
+                writeln!(self.output, "n {} {} m", point.x, point.y).unwrap();
+                init_point_drawn = true;
+            } else {
+                writeln!(self.output, "{} {} l", point.x, point.y).unwrap();
+            }
+        }
+        writeln!(self.output, "h").unwrap(); // close path
+        if path.fill_color.is_some() && path.stroke_color.is_some() {
+            writeln!(self.output, "B").unwrap();
+        } else if path.fill_color.is_some() {
+            writeln!(self.output, "f").unwrap();
+        } else if path.stroke_color.is_some() {
+            writeln!(self.output, "S").unwrap();
+        }
+        self.restore_state();
+        self.set_cursor(self.cursor.0, self.cursor.1 - path.height);
         Ok(())
     }
     fn draw_lines(&mut self, lines: Vec<Line>, table: &Table) {
@@ -217,15 +253,6 @@ impl Canvas {
                 let rect = cell_rects[index];
                 self.fill_rect(rect, bg_color);
             }
-            // Check for horizontal alignment
-            let cell_content_width = cell_content_widths[index];
-            let offset_left = match table.style.horizontal_align {
-                HorizontalAlign::Center => (cell_width - cell_content_width) / 2.0,
-                HorizontalAlign::Right => {
-                    cell_width - cell_content_width - table.style.padding_right
-                }
-                _ => table.style.padding_left,
-            };
             // Check for vertical alignment
             let cell_content_height = cell_content_heights[index];
             let offset_top = match table.style.vertical_align {
@@ -239,15 +266,8 @@ impl Canvas {
             };
             // Set vertical offset
             self.cursor.1 = cell_cursor.1 - offset_top;
+            self.cursor.0 = cell_cursor.0 + table.style.padding_left;
             for content in &cell.contents {
-                if content.as_any().downcast_ref::<Paragraph>().is_some() {
-                    // Don't offset Paragraph objects, since they have their own
-                    // alignment styles.
-                    self.cursor.0 = cell_cursor.0 + table.style.padding_left;
-                } else {
-                    // Set horizontal offset
-                    self.cursor.0 = cell_cursor.0 + offset_left;
-                }
                 content.draw(self, cell_width - horizontal_padding)?
             }
             cell_cursor.0 += cell_width;
