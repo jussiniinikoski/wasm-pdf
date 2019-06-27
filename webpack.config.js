@@ -24,5 +24,5 @@ module.exports = {
         // })
     ],
     mode: 'development'
-    //mode: 'production' // <- switch to this when building a release version
+    //mode: 'production' // <- switch to this when building a release version ($ npm run build --release)
 };

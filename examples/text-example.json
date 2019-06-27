@@ -202,7 +202,8 @@
                                             "params": {
                                                 "text": "Here is a custom path",
                                                 "align": "center",
-                                                "color": [0.6, 0, 0]
+                                                "font_name": "Helvetica-Bold",
+                                                "color": [1, 0, 0]
                                             }
                                     }
                                 ]
