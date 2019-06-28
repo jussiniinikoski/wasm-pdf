@@ -15,7 +15,7 @@ pub enum ContentType {
     Image,
     Spacer,
     Table,
-    Path
+    Path,
 }
 
 // Content Trait is the center piece here.
