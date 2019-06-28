@@ -16,7 +16,7 @@ use json::{
     get_bool_from_js, get_number_from_js, get_text_from_js, JsContent, JsDocument, JsParamValue,
 };
 use models::{Cell, Document, Image, Paragraph, Path, Row, Spacer, Table};
-use styles::{get_color, get_paragraph_style, get_path_style, get_table_style};
+use styles::{get_color, get_image_style, get_paragraph_style, get_path_style, get_table_style};
 use template::PageTemplate;
 use units::Point;
 
@@ -142,7 +142,8 @@ fn get_image(content: &JsContent, js_doc: &JsDocument) -> Option<Image> {
                     0.0
                 };
                 let image_data = base64::decode(&image_data_str).unwrap();
-                let image = Image::new(image_data, p_width, p_height, fit_width);
+                let image_style = get_image_style(&content);
+                let image = Image::new(image_data, p_width, p_height, fit_width, image_style);
                 return Some(image);
             }
         }

@@ -45,6 +45,19 @@ impl TableStyle {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub struct ImageStyle {
+    pub horizontal_align: HorizontalAlign,
+}
+
+impl ImageStyle {
+    pub fn new() -> ImageStyle {
+        ImageStyle {
+            horizontal_align: HorizontalAlign::Center,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct PathStyle {
     pub horizontal_align: HorizontalAlign,
 }
@@ -204,10 +217,26 @@ pub fn get_path_style(content: &JsContent) -> PathStyle {
                 _ => HorizontalAlign::Left,
             }
         } else {
-            HorizontalAlign::Center
+            HorizontalAlign::Left
         }
     }
     path_style
+}
+
+pub fn get_image_style(content: &JsContent) -> ImageStyle {
+    let mut image_style = ImageStyle::new();
+    if let Some(align) = content.params.get("align") {
+        image_style.horizontal_align = if let JsParamValue::Text(image_align) = align {
+            match image_align.as_str() {
+                "right" => HorizontalAlign::Right,
+                "center" => HorizontalAlign::Center,
+                _ => HorizontalAlign::Left,
+            }
+        } else {
+            HorizontalAlign::Left
+        }
+    }
+    image_style
 }
 
 fn get_table_padding(table_style: &mut TableStyle, padding: &JsParamValue) {

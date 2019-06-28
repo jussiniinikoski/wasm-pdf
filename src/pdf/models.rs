@@ -5,7 +5,7 @@ use super::font::{
     helvetica_bold_oblique, helvetica_oblique, times_bold, times_bold_italic, times_italic,
     times_roman, Font,
 };
-use super::styles::{CellStyle, ParagraphStyle, PathStyle, TableStyle};
+use super::styles::{CellStyle, ImageStyle, ParagraphStyle, PathStyle, TableStyle};
 use super::text::Text;
 use super::units::{Color, Point};
 use wasm_bindgen::prelude::*;
@@ -123,15 +123,23 @@ pub struct Image {
     pub width: f32,
     pub height: f32,
     pub fit_width: bool,
+    pub style: ImageStyle,
 }
 
 impl Image {
-    pub fn new(data: Vec<u8>, width: f32, height: f32, fit_width: bool) -> Image {
+    pub fn new(
+        data: Vec<u8>,
+        width: f32,
+        height: f32,
+        fit_width: bool,
+        style: ImageStyle,
+    ) -> Image {
         Image {
             data,
             width,
             height,
             fit_width,
+            style,
         }
     }
 }

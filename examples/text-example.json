@@ -224,6 +224,25 @@
             }
         },
         {
+          "obj_type": "Paragraph",
+          "params": {
+            "text": "Another Centered Image",
+            "align": "center",
+            "font_size": 18,
+            "padding": {
+                "top": 5,
+                "bottom": 10
+            }
+          }
+        },
+        {
+          "obj_type": "Image",
+          "params": {
+            "src": "/examples/pizza.jpg",
+            "align": "center"
+          }
+        },
+        {
             "obj_type": "Paragraph",
             "params": {
                 "text": "This centered text is generated with Times font",

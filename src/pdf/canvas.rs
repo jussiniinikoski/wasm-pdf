@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use std::io::Write;
 use std::str;
 use wasm_bindgen::prelude::*;
@@ -9,8 +8,6 @@ use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
 use super::text::Text;
 use super::units::{Color, Line, Rect};
-
-//use super::{log};
 
 pub struct Canvas {
     output: Vec<u8>,
@@ -181,7 +178,6 @@ impl Canvas {
         // Set the first cell's location to the beginning of row
         let mut rect_cursor = row_cursor;
         for cell in &row.cells {
-            // TODO: adjust this by getting possible padding style values..
             let cell_width = cell.span * span_width;
             let mut cell_content_width = 0.0;
             let mut cell_height = 0.0;
@@ -291,11 +287,6 @@ impl Canvas {
         self.set_cursor(table_cursor.0, self.cursor.1);
         Ok(())
     }
-    pub fn draw_comment(&mut self, comment: &str) {
-        self.output.write_all(b"%").unwrap();
-        self.output.write_all(comment.as_bytes()).unwrap();
-        self.output.write_all(b"\n").unwrap();
-    }
     pub fn draw_image(
         &mut self,
         image: &Image,
@@ -315,6 +306,15 @@ impl Canvas {
         } else {
             image.height
         };
+        let pos_x = if !image.fit_width {
+            match image.style.horizontal_align {
+                HorizontalAlign::Left => self.cursor.0,
+                HorizontalAlign::Center => self.cursor.0 + (available_width - image.width) / 2.0,
+                _ => self.cursor.0 + available_width - image.width,
+            }
+        } else {
+            self.cursor.0
+        };
         if self.cursor.1 - image.height < frame_bottom {
             if new_page {
                 return Err(JsValue::from_str("Image is too large to fit on page."));
@@ -322,13 +322,14 @@ impl Canvas {
             self.save_page();
             return self.draw_image(image, true, available_width);
         }
+
         let image_id = self.doc.get_image_id();
         let pdf_image = PDFImage::new(image_id, image.width, image.height, &image.data);
         let image_name = pdf_image.get_uid();
         self.images.push(pdf_image);
         self.set_cursor(self.cursor.0, self.cursor.1 - height);
         self.save_state();
-        self.translate(self.cursor.0, self.cursor.1);
+        self.translate(pos_x, self.cursor.1);
         let mut stream = Vec::new();
         writeln!(stream, "{} 0 0 {} 0 0 cm", width, height).unwrap();
         writeln!(stream, "/{} Do", image_name).unwrap();
