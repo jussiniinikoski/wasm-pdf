@@ -8,16 +8,23 @@ use super::font::{
 use super::styles::{CellStyle, ParagraphStyle, PathStyle, TableStyle};
 use super::text::Text;
 use super::units::{Color, Point};
-use std::any::Any;
 use wasm_bindgen::prelude::*;
+
+pub enum ContentType {
+    Paragraph,
+    Image,
+    Spacer,
+    Table,
+    Path
+}
 
 // Content Trait is the center piece here.
 pub trait Content {
     fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), JsValue>;
     // wrap element, takes available width, height and returns actual width, height
     fn wrap(&self, area: (f32, f32)) -> (f32, f32);
-    // allow downcasting to concrete type
-    fn as_any(&self) -> &dyn Any;
+    // define content type
+    fn content_type(&self) -> ContentType;
 }
 
 pub struct Document {
@@ -83,8 +90,8 @@ impl Content for Paragraph {
         let width = Text::get_text_width(&self, &self.text, area.0);
         (width, height)
     }
-    fn as_any(&self) -> &dyn Any {
-        self
+    fn content_type(&self) -> ContentType {
+        ContentType::Paragraph
     }
 }
 
@@ -106,8 +113,8 @@ impl Content for Spacer {
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
         (area.0, self.height)
     }
-    fn as_any(&self) -> &dyn Any {
-        self
+    fn content_type(&self) -> ContentType {
+        ContentType::Spacer
     }
 }
 
@@ -146,8 +153,8 @@ impl Content for Image {
         };
         (width, height)
     }
-    fn as_any(&self) -> &dyn Any {
-        self
+    fn content_type(&self) -> ContentType {
+        ContentType::Image
     }
 }
 
@@ -208,8 +215,8 @@ impl Content for Table {
         // table is just a placeholder for keeping rows
         (area.0, area.1)
     }
-    fn as_any(&self) -> &dyn Any {
-        self
+    fn content_type(&self) -> ContentType {
+        ContentType::Table
     }
 }
 
@@ -256,7 +263,7 @@ impl Content for Path {
     fn wrap(&self, _area: (f32, f32)) -> (f32, f32) {
         (self.width, self.height)
     }
-    fn as_any(&self) -> &dyn Any {
-        self
+    fn content_type(&self) -> ContentType {
+        ContentType::Path
     }
 }

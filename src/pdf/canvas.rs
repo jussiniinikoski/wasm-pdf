@@ -127,11 +127,11 @@ impl Canvas {
             }
         }
         writeln!(self.output, "h").unwrap(); // close path
-        if path.fill_color.is_some() && path.stroke_color.is_some() {
+        if path.fill_color.is_some() && path.stroke_color.is_some() && path.stroke_width > 0.0 {
             writeln!(self.output, "B").unwrap();
         } else if path.fill_color.is_some() {
             writeln!(self.output, "f").unwrap();
-        } else if path.stroke_color.is_some() {
+        } else if path.stroke_color.is_some() && path.stroke_width > 0.0 {
             writeln!(self.output, "S").unwrap();
         }
         self.restore_state();
