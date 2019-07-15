@@ -8,7 +8,7 @@ use super::objects::{PDFDocument, PDFImage, PDFPage};
 use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
 use super::text::Text;
-use super::units::{Color, Line, Rect};
+use super::units::{Color, Line, Point, Rect};
 
 pub struct Canvas {
     output: Vec<u8>,
@@ -54,9 +54,11 @@ impl Canvas {
                     x,
                     y,
                     align,
+                    color,
                 } => {
                     let number = self.doc.page_number().to_string();
-                    self.draw_text_line(&number, font_size, &font, x, y, align);
+                    let point = Point { x, y };
+                    self.draw_text_line(&number, font_size, &font, point, align, color);
                 }
                 Stationary::Text {
                     text,
@@ -65,8 +67,10 @@ impl Canvas {
                     x,
                     y,
                     align,
+                    color,
                 } => {
-                    self.draw_text_line(&text, font_size, &font, x, y, align);
+                    let point = Point { x, y };
+                    self.draw_text_line(&text, font_size, &font, point, align, color);
                 }
             }
         }
@@ -76,14 +80,13 @@ impl Canvas {
         text: &str,
         font_size: f32,
         font: &Font,
-        x: f32,
-        y: f32,
+        point: Point,
         align: HorizontalAlign,
+        color: Color,
     ) {
         self.save_state();
-        self.translate(x, y);
+        self.translate(point.x, point.y);
         self.save_state();
-        let color = Color::new(0.0, 0.0, 0.0);
         self.set_fill_color(color.r, color.g, color.b);
         let mut out_text: Vec<u8> = Vec::new();
         let width = font.get_width(font_size, text);

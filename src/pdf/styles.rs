@@ -331,3 +331,13 @@ pub fn get_color(color_arr: &JsParamValue) -> Option<Color> {
     }
     None
 }
+
+// Differs from get_color in that we return default if not found (not None)
+pub fn get_color_from_js(value: Option<&JsParamValue>, default: Color) -> Color {
+    if let Some(value) = value {
+        if let Some(color) = get_color(value) {
+            return color;
+        }
+    }
+    default
+}

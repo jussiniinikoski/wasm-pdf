@@ -35,6 +35,7 @@ pub enum Stationary {
         x: f32,
         y: f32,
         align: HorizontalAlign,
+        color: Color,
     },
     Text {
         text: String,
@@ -43,6 +44,7 @@ pub enum Stationary {
         x: f32,
         y: f32,
         align: HorizontalAlign,
+        color: Color,
     },
 }
 
