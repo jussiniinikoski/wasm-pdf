@@ -6,6 +6,18 @@
         "right": 50,
         "bottom": 50
     },
+    "stationary": [
+        {
+            "obj_type": "PageNumber",
+            "params": {
+                "font_size": 12,
+                "font_name": "Helvetica",
+                "x": 297.5,
+                "y": 30,
+                "align": "center"
+            }
+        }
+    ],
     "contents": [{
             "obj_type": "Paragraph",
             "params": {

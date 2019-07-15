@@ -1,11 +1,9 @@
 #![allow(dead_code)]
 use super::canvas::Canvas;
-use super::font::{
-    courier, courier_bold, courier_bold_oblique, courier_oblique, helvetica, helvetica_bold,
-    helvetica_bold_oblique, helvetica_oblique, times_bold, times_bold_italic, times_italic,
-    times_roman, Font,
+use super::font::{get_font, Font};
+use super::styles::{
+    CellStyle, HorizontalAlign, ImageStyle, ParagraphStyle, PathStyle, TableStyle,
 };
-use super::styles::{CellStyle, ImageStyle, ParagraphStyle, PathStyle, TableStyle};
 use super::text::Text;
 use super::units::{Color, Point};
 use wasm_bindgen::prelude::*;
@@ -25,6 +23,19 @@ pub trait Content {
     fn wrap(&self, area: (f32, f32)) -> (f32, f32);
     // define content type
     fn content_type(&self) -> ContentType;
+}
+
+// Using enums instead of structs/trait objects, since the amount of different stationary
+// elements will remain low. Stationary elements are also simpler than "Content" objects.
+#[derive(Debug, Copy, Clone)]
+pub enum Stationary {
+    PageNumber {
+        font_size: f32,
+        font: &'static Font,
+        x: f32,
+        y: f32,
+        align: HorizontalAlign,
+    },
 }
 
 pub struct Document {
@@ -59,21 +70,7 @@ impl Paragraph {
         Paragraph {
             text: String::from(text),
             font_size,
-            font: match font_name.to_lowercase().as_str() {
-                "helvetica" => helvetica(),
-                "courier" => courier(),
-                "times" => times_roman(),
-                "helvetica-bold" => helvetica_bold(),
-                "helvetica-oblique" => helvetica_oblique(),
-                "helvetica-bold-oblique" => helvetica_bold_oblique(),
-                "courier-bold" => courier_bold(),
-                "courier-oblique" => courier_oblique(),
-                "courier-bold-oblique" => courier_bold_oblique(),
-                "times-bold" => times_bold(),
-                "times-italic" => times_italic(),
-                "times-bold-italic" => times_bold_italic(),
-                _ => helvetica(), // default font
-            },
+            font: get_font(font_name.to_lowercase().as_str()),
             style,
         }
     }

@@ -6,7 +6,7 @@ use std::io::Write;
 pub struct Text {}
 
 impl Text {
-    fn get_text_line(
+    pub fn get_text_line(
         input: &str,
         text_align: HorizontalAlign,
         width_offset: f32,

@@ -51,6 +51,24 @@ impl Font {
     }
 }
 
+pub fn get_font(name: &str) -> &'static Font {
+    match name {
+        "helvetica" => helvetica(),
+        "courier" => courier(),
+        "times" => times_roman(),
+        "helvetica-bold" => helvetica_bold(),
+        "helvetica-oblique" => helvetica_oblique(),
+        "helvetica-bold-oblique" => helvetica_bold_oblique(),
+        "courier-bold" => courier_bold(),
+        "courier-oblique" => courier_oblique(),
+        "courier-bold-oblique" => courier_bold_oblique(),
+        "times-bold" => times_bold(),
+        "times-italic" => times_italic(),
+        "times-bold-italic" => times_bold_italic(),
+        _ => helvetica(), // default font
+    }
+}
+
 pub fn helvetica() -> &'static Font {
     &HELVETICA
 }

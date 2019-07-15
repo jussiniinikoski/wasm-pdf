@@ -2,12 +2,13 @@
 use wasm_bindgen::prelude::*;
 
 use super::canvas::Canvas;
-use super::models::Document;
+use super::models::{Document, Stationary};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct PageTemplate {
     page_size: (f32, f32),
     frame: Frame,
+    stationary: Vec<Stationary>,
 }
 
 impl PageTemplate {
@@ -27,6 +28,7 @@ impl PageTemplate {
         PageTemplate {
             page_size: size,
             frame,
+            stationary: Vec::new(),
         }
     }
     pub fn build(&self, doc: &Document) -> Result<Vec<u8>, JsValue> {
@@ -41,6 +43,12 @@ impl PageTemplate {
     }
     pub fn get_frame(&self) -> Frame {
         self.frame
+    }
+    pub fn add_stationary(&mut self, object: Stationary) {
+        self.stationary.push(object);
+    }
+    pub fn stationary(&self) -> Vec<Stationary> {
+        self.stationary.clone()
     }
 }
 

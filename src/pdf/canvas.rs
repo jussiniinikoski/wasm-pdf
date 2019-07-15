@@ -2,7 +2,8 @@ use std::io::Write;
 use std::str;
 use wasm_bindgen::prelude::*;
 
-use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Table};
+use super::font::Font;
+use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
 use super::objects::{PDFDocument, PDFImage, PDFPage};
 use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
@@ -21,15 +22,16 @@ impl Canvas {
     pub fn new(tpl: &PageTemplate) -> Canvas {
         let top_left = (tpl.get_frame().x, tpl.get_frame().y);
         let doc = PDFDocument::new();
-        let mut output = Vec::new();
-        write_preamble(&mut output);
-        Canvas {
+        let output = Vec::new();
+        let mut canvas = Canvas {
             output,
             cursor: top_left,
-            template: *tpl, // tpl is Copy
+            template: tpl.clone(),
             doc,
             images: Vec::new(),
-        }
+        };
+        canvas.write_preamble();
+        canvas
     }
     /// Save the current graphics state to be restored later by restore_state.
     pub fn save_state(&mut self) {
@@ -40,7 +42,55 @@ impl Canvas {
     }
     /// All canvas pages are initialized with preamble.
     pub fn write_preamble(&mut self) {
-        write_preamble(&mut self.output);
+        writeln!(self.output, "1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET").unwrap();
+        for element in self.template.stationary() {
+            match element {
+                Stationary::PageNumber {
+                    font_size,
+                    font,
+                    x,
+                    y,
+                    align,
+                } => {
+                    let number = self.doc.page_number().to_string();
+                    self.draw_text_line(&number, font_size, &font, x, y, align);
+                }
+            }
+        }
+    }
+    fn draw_text_line(
+        &mut self,
+        text: &str,
+        font_size: f32,
+        font: &Font,
+        x: f32,
+        y: f32,
+        align: HorizontalAlign,
+    ) {
+        self.save_state();
+        self.translate(x, y);
+        self.save_state();
+        let color = Color::new(0.0, 0.0, 0.0);
+        self.set_fill_color(color.r, color.g, color.b);
+        let mut out_text: Vec<u8> = Vec::new();
+        let width = font.get_width(font_size, text);
+        let encoded_text = Text::get_text_line(text, align, -width, 0.0);
+        out_text.extend(encoded_text);
+        let mut stream = Vec::new();
+        let leading = font_size;
+        write!(
+            stream,
+            "BT 1 0 0 1 0 2 Tm /{} {} Tf {} TL ",
+            font.get_ref(),
+            font_size,
+            leading
+        )
+        .unwrap();
+        stream.write_all(&out_text).unwrap();
+        writeln!(stream, " ET").unwrap();
+        self.output.write_all(&stream).unwrap();
+        self.restore_state();
+        self.restore_state();
     }
     fn transform(&mut self, aa: &str, bb: &str, cc: &str, dd: &str, ee: &str, ff: &str) {
         writeln!(self.output, "{} {} {} {} {} {} cm", aa, bb, cc, dd, ee, ff).unwrap();
@@ -415,10 +465,6 @@ impl Canvas {
     }
     pub fn build(&mut self) -> Result<Vec<u8>, JsValue> {
         self.save_page();
-        self.doc.save_document(self.template)
+        self.doc.save_document(&self.template)
     }
-}
-
-fn write_preamble(output: &mut Vec<u8>) {
-    writeln!(output, "1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET").unwrap();
 }

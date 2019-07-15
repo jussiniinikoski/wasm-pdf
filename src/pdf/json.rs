@@ -37,6 +37,9 @@ pub struct JsDocument {
     pub title: String,
     #[serde(default = "default_template")]
     pub template: JsTemplate,
+    #[serde(default = "default_content_vec")]
+    pub stationary: Vec<JsContent>,
+    #[serde(default = "default_content_vec")]
     pub contents: Vec<JsContent>,
     #[serde(default = "default_image_data")]
     pub image_data: HashMap<String, String>,
@@ -48,6 +51,10 @@ pub struct JsDocument {
 
 fn default_title() -> String {
     "Untitled".to_string()
+}
+
+fn default_content_vec() -> Vec<JsContent> {
+    Vec::new()
 }
 
 fn default_template() -> JsTemplate {

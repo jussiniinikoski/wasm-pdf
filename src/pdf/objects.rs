@@ -27,6 +27,9 @@ impl PDFDocument {
             fonts: HashSet::new(),
         }
     }
+    pub fn page_number(&self) -> u16 {
+        self.page_counter
+    }
     pub fn add_font(&mut self, font: &'static Font) {
         self.fonts.insert(font);
     }
@@ -38,7 +41,7 @@ impl PDFDocument {
         self.image_counter += 1;
         self.image_counter
     }
-    pub fn save_document(&mut self, tpl: PageTemplate) -> Result<Vec<u8>, JsValue> {
+    pub fn save_document(&mut self, tpl: &PageTemplate) -> Result<Vec<u8>, JsValue> {
         let mut pdf = PDFFile::new();
         let font_id = pdf.get_new_object_id();
         let mut font_resources = String::new();

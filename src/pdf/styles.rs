@@ -112,10 +112,8 @@ impl ParagraphStyle {
     }
 }
 
-pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphStyle {
-    let p_leading = get_number_from_js(content.params.get("leading"), p_font_size + 2.0);
-    let p_padding = get_paragraph_padding(&content, p_font_size);
-    let p_align = if let Some(text_align) = content.params.get("align") {
+pub fn get_horizontal_align(content: &JsContent) -> HorizontalAlign {
+    if let Some(text_align) = content.params.get("align") {
         if let JsParamValue::Text(text_align) = text_align {
             match text_align.as_str() {
                 "right" => HorizontalAlign::Right,
@@ -127,7 +125,13 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
         }
     } else {
         HorizontalAlign::Left
-    };
+    }
+}
+
+pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphStyle {
+    let p_leading = get_number_from_js(content.params.get("leading"), p_font_size + 2.0);
+    let p_padding = get_paragraph_padding(&content, p_font_size);
+    let p_align = get_horizontal_align(&content);
     let p_bullet: Option<String> = if let Some(bullet) = content.params.get("bullet") {
         match bullet {
             JsParamValue::Text(s) => Some(s.to_string()),

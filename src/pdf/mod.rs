@@ -12,11 +12,15 @@ mod template;
 mod text;
 mod units;
 
+use font::get_font;
 use json::{
     get_bool_from_js, get_number_from_js, get_text_from_js, JsContent, JsDocument, JsParamValue,
 };
-use models::{Cell, Document, Image, Paragraph, Path, Row, Spacer, Table};
-use styles::{get_color, get_image_style, get_paragraph_style, get_path_style, get_table_style};
+use models::{Cell, Document, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
+use styles::{
+    get_color, get_horizontal_align, get_image_style, get_paragraph_style, get_path_style,
+    get_table_style,
+};
 use template::PageTemplate;
 use units::Point;
 
@@ -30,7 +34,7 @@ extern "C" {
 
 pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, JsValue> {
     // add document content to template and build
-    let template = PageTemplate::new(
+    let mut template = PageTemplate::new(
         js_doc.template.size,
         js_doc.template.top,
         js_doc.template.left,
@@ -38,27 +42,34 @@ pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, JsValue> {
         js_doc.template.bottom,
     );
     let mut doc = Document::new(&js_doc.title);
+    // parse stationary elements
+    for element in &js_doc.stationary {
+        if let "pagenumber" = element.obj_type.to_lowercase().as_str() {
+            let page_number = get_page_number(&element);
+            template.add_stationary(page_number);
+        }
+    }
     // parse contents of JSON Document
     for content in &js_doc.contents {
-        match content.obj_type.as_str() {
-            "Table" => {
+        match content.obj_type.to_lowercase().as_str() {
+            "table" => {
                 let table = get_table(&content, js_doc)?;
                 doc.add(Box::new(table));
             }
-            "Image" => {
+            "image" => {
                 if let Some(image) = get_image(&content, &js_doc) {
                     doc.add(Box::new(image));
                 }
             }
-            "Paragraph" => {
+            "paragraph" => {
                 let paragraph = get_paragraph(&content);
                 doc.add(Box::new(paragraph));
             }
-            "Spacer" => {
+            "spacer" => {
                 let spacer = get_spacer(&content);
                 doc.add(Box::new(spacer));
             }
-            "Path" => {
+            "path" => {
                 if let Some(path) = get_path(&content) {
                     doc.add(Box::new(path));
                 }
@@ -86,19 +97,19 @@ fn get_table(content: &JsContent, js_doc: &JsDocument) -> Result<Table, JsValue>
                             if let Some(cell_contents) = cell.params.get("contents") {
                                 if let JsParamValue::Children(contents) = cell_contents {
                                     for cell_content in contents {
-                                        match cell_content.obj_type.as_str() {
-                                            "Paragraph" => {
+                                        match cell_content.obj_type.to_lowercase().as_str() {
+                                            "paragraph" => {
                                                 let paragraph = get_paragraph(&cell_content);
                                                 c.add(Box::new(paragraph));
                                             }
-                                            "Image" => {
+                                            "image" => {
                                                 if let Some(image) =
                                                     get_image(&cell_content, &js_doc)
                                                 {
                                                     c.add(Box::new(image));
                                                 }
                                             }
-                                            "Path" => {
+                                            "path" => {
                                                 if let Some(path) = get_path(&cell_content) {
                                                     c.add(Box::new(path));
                                                 }
@@ -198,4 +209,20 @@ fn get_paragraph(content: &JsContent) -> Paragraph {
     let p_style = get_paragraph_style(&content, p_font_size);
     let text_value = get_text_from_js(content.params.get("text"), "");
     Paragraph::new(&text_value, &p_font_name, p_font_size, p_style)
+}
+
+fn get_page_number(content: &JsContent) -> Stationary {
+    let p_font_name = get_text_from_js(content.params.get("font_name"), "Helvetica");
+    let font_size = get_number_from_js(content.params.get("font_size"), 12.0);
+    let x = get_number_from_js(content.params.get("x"), 50.0);
+    let y = get_number_from_js(content.params.get("y"), 50.0);
+    let align = get_horizontal_align(&content);
+    let font = get_font(p_font_name.to_lowercase().as_str());
+    Stationary::PageNumber {
+        font,
+        font_size,
+        x,
+        y,
+        align,
+    }
 }
