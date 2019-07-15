@@ -10,7 +10,7 @@
         {
             "obj_type": "PageNumber",
             "params": {
-                "font_size": 12,
+                "font_size": 10,
                 "font_name": "Helvetica",
                 "x": 297.5,
                 "y": 30,

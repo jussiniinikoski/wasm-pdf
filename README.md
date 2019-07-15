@@ -11,7 +11,7 @@ Example that generates a sample PDF document from JSON file. Title in PDF is cha
 
 **[View Example 1](https://jussiniinikoski.github.io/wasm-pdf-demo/)**
 
-Another example that generates 400 paragraphs of Lorem Ipsum and shows a download link when document has been generated (which is instantly 🙂).
+Another example that generates 400 paragraphs of Lorem Ipsum and shows a download link when document has been generated (which is instantly 🙂). Also shows page numbers.
 
 **[View Example 2](https://jussiniinikoski.github.io/wasm-pdf-demo/example2.html)**
 
@@ -27,6 +27,7 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Paths with points, strokes, fills and alignment
   * Basic styling (all styling parameters are optional)
   * Custom template size (defaults to A4 portrait with 50 px margins)
+  * Page numbers
 
 ## Example input (JSON)
 
