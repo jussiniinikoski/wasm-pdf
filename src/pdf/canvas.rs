@@ -33,6 +33,9 @@ impl Canvas {
         canvas.write_preamble();
         canvas
     }
+    pub fn _get_output(&self) -> Vec<u8> {
+        self.output.clone()
+    }
     /// Save the current graphics state to be restored later by restore_state.
     pub fn save_state(&mut self) {
         writeln!(self.output, "q").unwrap();
@@ -466,5 +469,20 @@ impl Canvas {
     pub fn build(&mut self) -> Result<Vec<u8>, JsValue> {
         self.save_page();
         self.doc.save_document(&self.template)
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::units::A4;
+
+    #[test]
+    fn test_initial_canvas() {
+        let tpl = PageTemplate::new(A4, 50.0, 50.0, 50.0, 50.0);
+        let canvas = Canvas::new(&tpl);
+        let output = "1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET\n".as_bytes();
+        assert_eq!(canvas._get_output(), output);
     }
 }
