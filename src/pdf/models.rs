@@ -27,9 +27,17 @@ pub trait Content {
 
 // Using enums instead of structs/trait objects, since the amount of different stationary
 // elements will remain low. Stationary elements are also simpler than "Content" objects.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum Stationary {
     PageNumber {
+        font_size: f32,
+        font: &'static Font,
+        x: f32,
+        y: f32,
+        align: HorizontalAlign,
+    },
+    Text {
+        text: String,
         font_size: f32,
         font: &'static Font,
         x: f32,

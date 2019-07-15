@@ -47,6 +47,9 @@ pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, JsValue> {
         if let "pagenumber" = element.obj_type.to_lowercase().as_str() {
             let page_number = get_page_number(&element);
             template.add_stationary(page_number);
+        } else if let "text" = element.obj_type.to_lowercase().as_str() {
+            let text = get_text_line(&element);
+            template.add_stationary(text);
         }
     }
     // parse contents of JSON Document
@@ -219,6 +222,24 @@ fn get_page_number(content: &JsContent) -> Stationary {
     let align = get_horizontal_align(&content);
     let font = get_font(p_font_name.to_lowercase().as_str());
     Stationary::PageNumber {
+        font,
+        font_size,
+        x,
+        y,
+        align,
+    }
+}
+
+fn get_text_line(content: &JsContent) -> Stationary {
+    let text = get_text_from_js(content.params.get("text"), "");
+    let p_font_name = get_text_from_js(content.params.get("font_name"), "Helvetica");
+    let font_size = get_number_from_js(content.params.get("font_size"), 12.0);
+    let x = get_number_from_js(content.params.get("x"), 50.0);
+    let y = get_number_from_js(content.params.get("y"), 50.0);
+    let align = get_horizontal_align(&content);
+    let font = get_font(p_font_name.to_lowercase().as_str());
+    Stationary::Text {
+        text,
         font,
         font_size,
         x,

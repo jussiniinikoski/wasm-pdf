@@ -12,9 +12,19 @@
             "params": {
                 "font_size": 10,
                 "font_name": "Helvetica",
-                "x": 297.5,
+                "x": 545,
                 "y": 30,
-                "align": "center"
+                "align": "right"
+            }
+        },
+        {
+            "obj_type": "Text",
+            "params": {
+                "text": "Copyright 2019 Some Company Ltd.",
+                "font_size": 10,
+                "font_name": "Helvetica",
+                "x": 50,
+                "y": 30
             }
         }
     ],

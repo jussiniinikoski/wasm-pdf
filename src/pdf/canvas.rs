@@ -58,6 +58,16 @@ impl Canvas {
                     let number = self.doc.page_number().to_string();
                     self.draw_text_line(&number, font_size, &font, x, y, align);
                 }
+                Stationary::Text {
+                    text,
+                    font_size,
+                    font,
+                    x,
+                    y,
+                    align,
+                } => {
+                    self.draw_text_line(&text, font_size, &font, x, y, align);
+                }
             }
         }
     }
@@ -472,11 +482,10 @@ impl Canvas {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::units::A4;
+    use super::*;
 
     #[test]
     fn test_initial_canvas() {
