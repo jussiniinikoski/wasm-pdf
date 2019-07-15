@@ -27,7 +27,7 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Paths with points, strokes, fills and alignment
   * Basic styling (all styling parameters are optional)
   * Custom template size (defaults to A4 portrait with 50 px margins)
-  * Page numbers
+  * Page numbers and stationary text can be included in template
 
 ## Example input (JSON)
 
