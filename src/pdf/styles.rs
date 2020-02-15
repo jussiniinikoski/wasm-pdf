@@ -72,7 +72,7 @@ impl PathStyle {
 
 #[derive(Debug, Clone, Copy)]
 pub struct CellStyle {
-    pub background_color: Option<(Color)>,
+    pub background_color: Option<Color>,
 }
 
 impl CellStyle {

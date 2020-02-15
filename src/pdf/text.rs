@@ -87,10 +87,10 @@ impl Text {
                     line_strings.push(next_word);
                     next_line_word = None;
                 }
-                line_strings.push(word.to_string());
+                line_strings.push((*word).to_string());
                 if font.get_width(size, &line_strings.join(" ")) > frame_width {
                     // add last word that didn' fit to next line
-                    next_line_word = Some(word.to_string());
+                    next_line_word = Some((*word).to_string());
                     line_strings.pop();
                     let output_line = line_strings.join(" ");
                     let line_width = font.get_width(size, &output_line);
@@ -142,11 +142,11 @@ impl Text {
                     line_strings.push(next_word);
                     next_line_word = None;
                 }
-                line_strings.push(word.to_string());
+                line_strings.push((*word).to_string());
                 let curr_width = font.get_width(size, &line_strings.join(" "));
                 if curr_width > frame_width {
                     // add last word that didn' fit to next line
-                    next_line_word = Some(word.to_string());
+                    next_line_word = Some((*word).to_string());
                     line_strings.pop();
                     line_strings = Vec::new();
                 } else if max_width < curr_width {
