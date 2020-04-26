@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 
 use super::font::Font;
 use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
-use super::objects::{PDFDocument, PDFImage, PDFPage, /* LinkAnnotation */};
+use super::objects::{PDFDocument, PDFImage, PDFPage /* LinkAnnotation */};
 use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
 use super::text::Text;

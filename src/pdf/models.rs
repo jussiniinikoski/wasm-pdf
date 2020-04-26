@@ -284,7 +284,6 @@ impl Content for Path {
     }
 }
 
-
 fn extract_links(text: &str) -> String {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"<a[\s]+[^>]+>(?P<link>.*?)</a>").unwrap();
