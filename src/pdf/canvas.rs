@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 
 use super::font::Font;
 use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
-use super::objects::{PDFDocument, PDFImage, PDFPage};
+use super::objects::{PDFDocument, PDFImage, PDFPage, /* LinkAnnotation */};
 use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
 use super::text::Text;
@@ -16,6 +16,7 @@ pub struct Canvas {
     template: PageTemplate,
     doc: PDFDocument,
     images: Vec<PDFImage>,
+    // link_annotations: Vec<LinkAnnotation>
 }
 
 impl Canvas {
@@ -29,6 +30,7 @@ impl Canvas {
             template: tpl.clone(),
             doc,
             images: Vec::new(),
+            // link_annotations: Vec::new()
         };
         canvas.write_preamble();
         canvas
@@ -148,6 +150,7 @@ impl Canvas {
         let mut page = PDFPage::new();
         page.set_contents(&self.output);
         page.set_images(&self.images);
+        // TODO: add annotations (links) to page and reset
         self.doc.add_page(page);
         self.output = Vec::new();
         self.images = Vec::new();

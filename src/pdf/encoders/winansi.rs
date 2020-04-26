@@ -1,7 +1,6 @@
 // Some parts of this code picked up from:
 // https://github.com/kaj/rust-pdf/
 
-use lazy_static;
 use std::collections::HashMap;
 
 pub fn encode(text: &str) -> Vec<u8> {

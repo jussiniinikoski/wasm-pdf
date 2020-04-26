@@ -6,6 +6,7 @@ use super::styles::{
 };
 use super::text::Text;
 use super::units::{Color, Point};
+use regex::Regex;
 use wasm_bindgen::prelude::*;
 
 pub enum ContentType {
@@ -78,7 +79,7 @@ pub struct Paragraph {
 impl Paragraph {
     pub fn new(text: &str, font_name: &str, font_size: f32, style: ParagraphStyle) -> Paragraph {
         Paragraph {
-            text: String::from(text),
+            text: extract_links(text),
             font_size,
             font: get_font(font_name.to_lowercase().as_str()),
             style,
@@ -281,4 +282,12 @@ impl Content for Path {
     fn content_type(&self) -> ContentType {
         ContentType::Path
     }
+}
+
+
+fn extract_links(text: &str) -> String {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"<a[\s]+[^>]+>(?P<link>.*?)</a>").unwrap();
+    }
+    RE.replace_all(text, "$link").into()
 }

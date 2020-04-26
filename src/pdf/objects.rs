@@ -188,6 +188,7 @@ pub struct PDFPage {
     page_id: u16,
     content_id: u16,
     pub images: Vec<PDFImage>,
+    pub link_annotations: Vec<LinkAnnotation>
 }
 
 impl PDFPage {
@@ -197,6 +198,7 @@ impl PDFPage {
             page_id: 0,
             content_id: 0,
             images: Vec::new(),
+            link_annotations: Vec::new()
         }
     }
     pub fn set_contents(&mut self, input: &[u8]) {
@@ -204,6 +206,9 @@ impl PDFPage {
     }
     pub fn set_images(&mut self, input: &[PDFImage]) {
         self.images = input.to_vec();
+    }
+    pub fn set_link_annotations(&mut self, input: &[LinkAnnotation]) {
+        self.link_annotations = input.to_vec();
     }
 }
 
@@ -308,5 +313,28 @@ impl PDFImage {
     }
     pub fn get_uid(&self) -> String {
         format!("Im{}", self.image_id)
+    }
+}
+
+#[derive(Clone)]
+pub struct LinkAnnotation {
+    url: String,
+    x1: f32,
+    y1: f32,
+    x2: f32,
+    y2: f32,
+    object_id: u16
+}
+
+impl LinkAnnotation {
+    pub fn new(url: &str, x1: f32, y1: f32, x2: f32, y2: f32) -> LinkAnnotation {
+        LinkAnnotation {
+            url: url.into(),
+            x1,
+            y1,
+            x2,
+            y2,
+            object_id: 0
+        }
     }
 }

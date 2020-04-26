@@ -1,4 +1,3 @@
-use base64;
 use wasm_bindgen::prelude::*;
 
 mod canvas;

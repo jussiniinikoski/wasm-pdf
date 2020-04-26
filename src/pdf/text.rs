@@ -64,10 +64,11 @@ impl Text {
         let text_align = paragraph.style.align;
         let line_width = font.get_width(size, text);
         let mut previous_line_width = frame_width;
+        // split words by any whitespace characters.
+        let words: Vec<&str> = text.split_whitespace().collect();
         if line_width <= frame_width {
             // just adding one line of text (fits to width)
             // remove extra whitespace characters (such as linebreaks)
-            let words: Vec<&str> = text.split_whitespace().collect();
             let input_line = words.join(" ");
             let output = Text::get_text_line(
                 &input_line,
@@ -78,8 +79,6 @@ impl Text {
             encoded_lines.push(output);
             text_lines.push(input_line);
         } else {
-            // split words by any whitespace characters.
-            let words: Vec<&str> = text.split_whitespace().collect();
             let mut line_strings = Vec::new();
             let mut next_line_word: Option<String> = None;
             for word in &words {

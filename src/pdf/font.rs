@@ -2,7 +2,6 @@
 // https://github.com/kaj/rust-pdf/
 
 use super::encoders::winansi;
-use lazy_static;
 use std::collections::BTreeMap;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
