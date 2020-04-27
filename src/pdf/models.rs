@@ -4,9 +4,8 @@ use super::font::{get_font, Font};
 use super::styles::{
     CellStyle, HorizontalAlign, ImageStyle, ParagraphStyle, PathStyle, TableStyle,
 };
-use super::text::Text;
+use super::text::{extract_links, Text, TextSpan};
 use super::units::{Color, Point};
-use regex::Regex;
 use wasm_bindgen::prelude::*;
 
 pub enum ContentType {
@@ -74,15 +73,18 @@ pub struct Paragraph {
     pub font_size: f32,
     pub font: &'static Font,
     pub style: ParagraphStyle,
+    spans: Vec<TextSpan>,
 }
 
 impl Paragraph {
     pub fn new(text: &str, font_name: &str, font_size: f32, style: ParagraphStyle) -> Paragraph {
+        let text_spans = TextSpan::extract_spans(&text);
         Paragraph {
             text: extract_links(text),
             font_size,
             font: get_font(font_name.to_lowercase().as_str()),
             style,
+            spans: text_spans,
         }
     }
 }
@@ -282,11 +284,4 @@ impl Content for Path {
     fn content_type(&self) -> ContentType {
         ContentType::Path
     }
-}
-
-fn extract_links(text: &str) -> String {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"<a[\s]+[^>]+>(?P<link>.*?)</a>").unwrap();
-    }
-    RE.replace_all(text, "$link").into()
 }
