@@ -87,6 +87,60 @@ impl Paragraph {
             spans: text_spans,
         }
     }
+    pub fn get_spans(&self) -> Vec<TextSpan> {
+        self.spans.clone()
+    }
+
+    /// Generate wrapped text spans, a line may contain multiple spans
+    /// and a span may split to next line. This is NOT optimal, but it works..
+    pub fn wrap_to_width(&self, available_width: f32) -> Vec<Vec<TextSpan>> {
+        let font = self.font;
+        let size = self.font_size;
+        // contain lines of lines of spans
+        let mut wrapped: Vec<Vec<TextSpan>> = Vec::new();
+        // contains line of spans
+        let mut line_spans: Vec<TextSpan> = Vec::new();
+        // contains words per line
+        let mut line_words: Vec<String> = Vec::new();
+        for span in self.get_spans() {
+            let words: Vec<&str> = span.text.split_whitespace().collect();
+            let mut next_word: Option<String> = None;
+            let mut span_words: Vec<String> = Vec::new();
+            for word in words {
+                if let Some(_next_word) = next_word {
+                    line_words.push(_next_word.clone());
+                    span_words.push(_next_word);
+                    next_word = None;
+                }
+                line_words.push(word.to_string());
+                let current_width = font.get_width(size, &line_words.join(" "));
+                if current_width > available_width {
+                    next_word = Some(word.to_string());
+                    let span_text = span_words.join(" ");
+                    let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
+                    line_spans.push(text_span);
+                    wrapped.push(line_spans);
+                    line_words = Vec::new();
+                    line_spans = Vec::new();
+                    span_words = Vec::new();
+                } else {
+                    span_words.push(word.to_string());
+                }
+            }
+            if span_words.len() > 0 || next_word != None {
+                if let Some(_next_word) = next_word {
+                    span_words.push(_next_word);
+                }
+                let span_text = span_words.join(" ");
+                let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
+                line_spans.push(text_span);
+            }
+        }
+        if line_spans.len() > 0 {
+            wrapped.push(line_spans);
+        }
+        wrapped
+    }
 }
 
 impl Content for Paragraph {

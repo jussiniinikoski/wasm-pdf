@@ -170,8 +170,8 @@ pub enum Tag {
 /// that may contain some attributes.
 #[derive(Debug, Clone)]
 pub struct TextSpan {
-    text: String,
-    tag: Tag,
+    pub text: String,
+    pub tag: Tag,
 }
 
 impl TextSpan {
@@ -213,60 +213,6 @@ impl TextSpan {
             text_parts.push(span);
         }
         text_parts
-    }
-    /// Generate wrapped text spans, line may contain multiple spans
-    /// and a span may split to next lines. This is NOT optimal, but it works..
-    pub fn wrap_to_width(
-        spans: &Vec<TextSpan>,
-        paragraph: &Paragraph,
-        available_width: f32,
-    ) -> Vec<Vec<TextSpan>> {
-        let font = paragraph.font;
-        let size = paragraph.font_size;
-        // contain lines of lines of spans
-        let mut wrapped: Vec<Vec<TextSpan>> = Vec::new();
-        // contains line of spans
-        let mut line_spans: Vec<TextSpan> = Vec::new();
-        // contains words per line
-        let mut line_words: Vec<String> = Vec::new();
-        for span in spans {
-            let words: Vec<&str> = span.text.split_whitespace().collect();
-            let mut next_word: Option<String> = None;
-            let mut span_words: Vec<String> = Vec::new();
-            for word in words {
-                if let Some(_next_word) = next_word {
-                    line_words.push(_next_word.clone());
-                    span_words.push(_next_word);
-                    next_word = None;
-                }
-                line_words.push(word.to_string());
-                let current_width = font.get_width(size, &line_words.join(" "));
-                if current_width > available_width {
-                    next_word = Some(word.to_string());
-                    let span_text = span_words.join(" ");
-                    let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
-                    line_spans.push(text_span);
-                    wrapped.push(line_spans);
-                    line_words = Vec::new();
-                    line_spans = Vec::new();
-                    span_words = Vec::new();
-                } else {
-                    span_words.push(word.to_string());
-                }
-            }
-            if span_words.len() > 0 || next_word != None {
-                if let Some(_next_word) = next_word {
-                    span_words.push(_next_word);
-                }
-                let span_text = span_words.join(" ");
-                let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
-                line_spans.push(text_span);
-            }
-        }
-        if line_spans.len() > 0 {
-            wrapped.push(line_spans);
-        }
-        wrapped
     }
     /// Get number of characters in text.
     pub fn get_length(&self) -> usize {
@@ -320,7 +266,6 @@ mod tests {
     fn test_wrap_to_width() {
         let sample_text = "<a href='https://www.microsoft.com'>Microsoft Corporation</a>. Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
         <a href='https://www.google.com'>A Link to Google</a>. Aliquam maximus tincidunt nisl. <a href='https://www.yaloo.com'>A Link to Yahoo</a>. Ends here.";
-        let spans = TextSpan::extract_spans(&sample_text);
         let color = Color::new(0.0, 0.0, 0.0);
         let style: ParagraphStyle = ParagraphStyle::new(
             12.0,
@@ -331,7 +276,7 @@ mod tests {
             color,
         );
         let p: Paragraph = Paragraph::new(&sample_text, "helvetica", 12.0, style);
-        let wrapped = TextSpan::wrap_to_width(&spans, &p, 300.0);
+        let wrapped = p.wrap_to_width(300.0);
         println!("{:?}", wrapped);
         // let mut line_text: Vec<String> = Vec::new();
         // for line in wrapped {
