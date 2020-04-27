@@ -87,8 +87,8 @@ impl Paragraph {
             spans: text_spans,
         }
     }
-    pub fn get_spans(&self) -> Vec<TextSpan> {
-        self.spans.clone()
+    pub fn get_spans(&self) -> &Vec<TextSpan> {
+        &self.spans
     }
 
     /// Generate wrapped text spans, a line may contain multiple spans
@@ -337,5 +337,65 @@ impl Content for Path {
     }
     fn content_type(&self) -> ContentType {
         ContentType::Path
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use lazy_static;
+    use regex::Regex;
+
+    #[test]
+    fn test_link_removal() {
+        lazy_static! {
+            static ref RE: Regex =
+                Regex::new(r"<a[\s]+href='(?P<url>[^']+)'[^>]*?>(?P<link>.*?)</a>").unwrap();
+        }
+        let output: String = RE
+            .replace_all(
+                "<a href='https://www.google.com'>A Link to Google</a>",
+                "$link",
+            )
+            .into();
+        assert_eq!(output.as_str(), "A Link to Google");
+    }
+
+    #[test]
+    fn test_link_extraction() {
+        let sample_text = "<a href='https://www.microsoft.com'>Microsoft Corporation</a>. Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
+        <a href='https://www.google.com'>A Link to Google</a>. Aliquam maximus tincidunt nisl. <a href='https://www.yaloo.com'>A Link to Yahoo</a>. Ends here.";
+        let text_parts = TextSpan::extract_spans(&sample_text);
+        // println!("{:?}", text_parts);
+        assert_eq!(
+            text_parts[text_parts.len() - 1].text.as_str(),
+            ". Ends here."
+        );
+    }
+
+    #[test]
+    fn test_wrap_to_width() {
+        let sample_text = "<a href='https://www.microsoft.com'>Microsoft Corporation</a>. Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
+        <a href='https://www.google.com'>A Link to Google</a>. Aliquam maximus tincidunt nisl. <a href='https://www.yaloo.com'>A Link to Yahoo</a>. Ends here.";
+        let color = Color::new(0.0, 0.0, 0.0);
+        let style: ParagraphStyle = ParagraphStyle::new(
+            12.0,
+            HorizontalAlign::Left,
+            None,
+            0.0,
+            (0.0, 0.0, 0.0, 0.0),
+            color,
+        );
+        let p: Paragraph = Paragraph::new(&sample_text, "helvetica", 12.0, style);
+        let wrapped = p.wrap_to_width(300.0);
+        println!("{:?}", wrapped);
+        // let mut line_text: Vec<String> = Vec::new();
+        // for line in wrapped {
+        //     for elem in line {
+        //         line_text.push(elem.text);
+        //     }
+        // }
+        // println!("{:?}", line_text.join(" "));
+        assert_eq!(wrapped.last().unwrap().last().unwrap().text, ". Ends here.");
     }
 }
