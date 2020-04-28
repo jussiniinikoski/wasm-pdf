@@ -38,11 +38,11 @@ pub fn print_document(json: &JsValue) -> Result<(), JsValue> {
 }
 
 fn get_js_doc(json: &JsValue) -> Result<JsDocument, JsValue> {
-    return match json.into_serde() {
+    match json.into_serde() {
         Ok(doc) => Ok(doc),
         Err(e) => Err(JsValue::from_str(&format!(
             "Error. Could not parse JSON data. {}",
             e
         ))),
-    };
+    }
 }

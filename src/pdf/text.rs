@@ -89,7 +89,7 @@ impl TextSpan {
     }
 
     /// Generates encoded spans
-    pub fn encoded_spans(spans: &Vec<TextSpan>) -> Vec<u8> {
+    pub fn encoded_spans(spans: &[TextSpan]) -> Vec<u8> {
         let mut output: Vec<u8> = Vec::new();
         for span in spans {
             output.write_all(&span.encoded_text()).unwrap();

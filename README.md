@@ -17,6 +17,8 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
 
 ## Features
 
+**NOTE: this project is work in progress so some features may be broken.**
+
 * PDF contents are described as a JavaScript object and that gets passed to WASM-module, which generates the output
 * Customizable output handler (e.g. load blob URL to a link or directly to window)
 * Currently supported elements include:
@@ -28,6 +30,7 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Basic styling (all styling parameters are optional)
   * Custom template size (defaults to A4 portrait with 50 px margins)
   * Page numbers and stationary text can be included in template
+  * Inline links (2020/04/28)
 
 ## Example input (JSON)
 
@@ -50,16 +53,12 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
 
 ## How to generate an example PDF
 
-### Option 1 (with Rust)
 * First install [the Rust compiler](https://www.rust-lang.org)
 * Clone this repo:```git clone https://github.com/jussiniinikoski/wasm-pdf.git```
 * Change to directory: ```cd wasm-pdf```
 * Install JavaScript libraries: ```npm install```
 * Launch the local development server: ```npm run serve```
 * Open your browser and visit the url provided by the server, usually ```http://localhost:8080```
-
-### Option 2 (with JavaScript only / npm package)
-* Go to [starter template repo](https://github.com/jussiniinikoski/wasm-pdf-app/)
 
 ## Special Thanks
 

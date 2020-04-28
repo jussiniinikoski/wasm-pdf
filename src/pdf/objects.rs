@@ -57,9 +57,9 @@ impl PDFDocument {
             let font_resource_id = pdf.get_new_object_id();
             font_resources += &format!("/{} {} 0 R ", font.get_ref(), font_resource_id);
             let font_resource_obj = PDFObject::new(
-            &format!("/BaseFont /{} /Encoding /WinAnsiEncoding /Name /{} /Subtype /Type1 /Type /Font", 
-                font.get_name(), font.get_ref()),
-                font_resource_id
+                &format!("/BaseFont /{} /Encoding /WinAnsiEncoding /Name /{} /Subtype /Type1 /Type /Font",
+                         font.get_name(), font.get_ref()),
+                font_resource_id,
             );
             font_resource_objects.push(font_resource_obj);
         }
@@ -155,14 +155,15 @@ impl PDFDocument {
             } else {
                 format!("/XObject <<\n{}\n>>", x_objects.join(" "))
             };
-            let mut link_annotation_objects: Vec<String> = Vec::new();
-            let mut annots = String::new();
-            if page.link_annotations.len() > 0 {
+            let annots = if page.link_annotations.is_empty() {
+                String::new()
+            } else {
+                let mut link_annotation_objects: Vec<String> = Vec::new();
                 for annot in &page.link_annotations {
                     link_annotation_objects.push(format!("{} 0 R", annot.object_id));
                 }
-                annots = format!("/Annots [ {} ]", link_annotation_objects.join(" "));
-            }
+                format!("/Annots [ {} ]", link_annotation_objects.join(" "))
+            };
             let content_id = page.content_id;
             let page_obj = PDFObject::new(
                 &format!(
@@ -328,7 +329,8 @@ pub struct PDFImage {
     width: f32,
     height: f32,
     contents: Vec<u8>,
-    image_id: u16,  // image identifier
+    image_id: u16,
+    // image identifier
     object_id: u16, // pdf object id
 }
 

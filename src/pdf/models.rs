@@ -123,7 +123,7 @@ impl Paragraph {
                     span_words.push(word.to_string());
                 }
             }
-            if span_words.len() > 0 || next_word != None {
+            if !span_words.is_empty() || next_word != None {
                 if let Some(_next_word) = next_word {
                     span_words.push(_next_word);
                 }
@@ -132,13 +132,13 @@ impl Paragraph {
                 line_spans.push(text_span);
             }
         }
-        if line_spans.len() > 0 {
+        if !line_spans.is_empty() {
             wrapped.push(line_spans);
         }
         wrapped
     }
 
-    pub fn wrapped_size(&self, wrapped: &Vec<Vec<TextSpan>>) -> (f32, f32) {
+    pub fn wrapped_size(&self, wrapped: &[Vec<TextSpan>]) -> (f32, f32) {
         let mut width: f32 = 0.0;
         for line in wrapped {
             let mut max_line: f32 = 0.0;
@@ -168,7 +168,7 @@ impl Content for Paragraph {
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
         // Calculate width and height according to wrapped
         let wrapped = self.wrap_to_width(area.0);
-        return self.wrapped_size(&wrapped);
+        self.wrapped_size(&wrapped)
     }
     fn content_type(&self) -> ContentType {
         ContentType::Paragraph

@@ -406,7 +406,7 @@ impl Canvas {
     pub fn draw_text(
         &mut self,
         paragraph: &Paragraph,
-        wrapped: &Vec<Vec<TextSpan>>,
+        wrapped: &[Vec<TextSpan>],
         available_width: f32,
     ) -> Result<(), JsValue> {
         self.doc.add_font(paragraph.font); // font gets added only if it doesn't exist yet
@@ -470,6 +470,7 @@ impl Canvas {
                 let mut _x: f32 = self.cursor.0;
                 let mut _y: f32 = self.cursor.1;
 
+                let mut text_color_changed = false;
                 for span in line {
                     let span_width = span.get_width(paragraph.font, paragraph.font_size);
                     match &span.tag {
@@ -477,10 +478,17 @@ impl Canvas {
                             let annot =
                                 LinkAnnotation::new(&url, _x, _y, _x + span_width, _y + leading);
                             self.link_annotations.push(annot);
-                            writeln!(out_text, " {} {} {} rg ", 0.2, 0.2, 1.0).unwrap();
+                            out_text.extend(format!(" {} {} {} rg ", 0.2, 0.2, 1.0).as_bytes());
+                            text_color_changed = true;
                         }
                         _ => {
-                            writeln!(out_text, " {} {} {} rg ", color.r, color.g, color.b).unwrap();
+                            // Only change text color when necessary.
+                            if text_color_changed {
+                                out_text.extend(
+                                    format!(" {} {} {} rg ", color.r, color.g, color.b).as_bytes(),
+                                );
+                                text_color_changed = false;
+                            }
                         }
                     }
                     out_text.extend(span.encoded_text());
