@@ -4,11 +4,11 @@ use wasm_bindgen::prelude::*;
 
 use super::font::Font;
 use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
-use super::objects::{PDFDocument, PDFImage, PDFPage /* LinkAnnotation */};
+use super::objects::{LinkAnnotation, PDFDocument, PDFImage, PDFPage};
 use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
 use super::units::{Color, Line, Point, Rect};
-use crate::pdf::text::TextSpan;
+use crate::pdf::text::{Tag, TextSpan};
 
 pub struct Canvas {
     output: Vec<u8>,
@@ -16,7 +16,7 @@ pub struct Canvas {
     template: PageTemplate,
     doc: PDFDocument,
     images: Vec<PDFImage>,
-    // link_annotations: Vec<LinkAnnotation>
+    link_annotations: Vec<LinkAnnotation>,
 }
 
 impl Canvas {
@@ -30,7 +30,7 @@ impl Canvas {
             template: tpl.clone(),
             doc,
             images: Vec::new(),
-            // link_annotations: Vec::new()
+            link_annotations: Vec::new(),
         };
         canvas.write_preamble();
         canvas
@@ -146,10 +146,11 @@ impl Canvas {
         let mut page = PDFPage::new();
         page.set_contents(&self.output);
         page.set_images(&self.images);
-        // TODO: add annotations (links) to page and reset
+        page.set_link_annotations(&self.link_annotations);
         self.doc.add_page(page);
         self.output = Vec::new();
         self.images = Vec::new();
+        self.link_annotations = Vec::new();
         self.write_preamble();
         let top_left = (self.template.get_frame().x, self.template.get_frame().y);
         self.cursor = top_left;
@@ -461,13 +462,30 @@ impl Canvas {
                         for span in line {
                             line_width += span.get_width(paragraph.font, paragraph.font_size);
                         }
-                        width_offset = (available_width - line_width);
+                        width_offset = available_width - line_width;
                         write!(out_text, " {} 0 Td ", width_offset).unwrap();
                     }
                     _ => (),
                 }
+                let mut _x: f32 = self.cursor.0;
+                let mut _y: f32 = self.cursor.1;
+
                 for span in line {
+                    let span_width = span.get_width(paragraph.font, paragraph.font_size);
+                    match &span.tag {
+                        Tag::Link { url } => {
+                            let annot =
+                                LinkAnnotation::new(&url, _x, _y, _x + span_width, _y + leading);
+                            self.link_annotations.push(annot);
+                            writeln!(out_text, " {} {} {} rg ", 0.2, 0.2, 1.0).unwrap();
+                        }
+                        _ => {
+                            writeln!(out_text, " {} {} {} rg ", color.r, color.g, color.b).unwrap();
+                        }
+                    }
                     out_text.extend(span.encoded_text());
+
+                    _x += span_width;
                 }
                 write!(out_text, " T* ").unwrap();
                 // Reset any offsets after printing a line

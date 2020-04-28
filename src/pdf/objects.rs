@@ -15,6 +15,7 @@ pub struct PDFDocument {
     pages: Vec<PDFPage>,
     page_counter: u16,
     image_counter: u16,
+    annotation_counter: u16,
     fonts: HashSet<&'static Font>,
 }
 
@@ -24,6 +25,7 @@ impl PDFDocument {
             pages: Vec::new(),
             page_counter: 1,
             image_counter: 0,
+            annotation_counter: 0,
             fonts: HashSet::new(),
         }
     }
@@ -40,6 +42,10 @@ impl PDFDocument {
     pub fn get_image_id(&mut self) -> u16 {
         self.image_counter += 1;
         self.image_counter
+    }
+    pub fn get_annotation_id(&mut self) -> u16 {
+        self.annotation_counter += 1;
+        self.annotation_counter
     }
     pub fn save_document(&mut self, tpl: &PageTemplate) -> Result<Vec<u8>, JsValue> {
         let mut pdf = PDFFile::new();
@@ -63,6 +69,22 @@ impl PDFDocument {
         // Font resource objects
         for font_resource_obj in font_resource_objects {
             pdf.add_object(&font_resource_obj);
+        }
+        // Link Annotations
+        for page in &mut self.pages {
+            for annot in &mut page.link_annotations {
+                annot.object_id = pdf.get_new_object_id();
+                let annot_resource_obj = PDFObject::new(
+                    &format!(
+                        "/A \
+                    << /S /URI /Type /Action /URI ({}) \
+                    >> /Border [ 0 0 0 ] /Rect [ {} {} {} {} ] /Subtype /Link /Type /Annot",
+                        annot.url, annot.x1, annot.y1, annot.x2, annot.y2
+                    ),
+                    annot.object_id,
+                );
+                pdf.add_object(&annot_resource_obj);
+            }
         }
         let root_id = pdf.get_new_object_id();
         let pages_id = pdf.get_new_object_id();
@@ -133,24 +155,33 @@ impl PDFDocument {
             } else {
                 format!("/XObject <<\n{}\n>>", x_objects.join(" "))
             };
+            let mut link_annotation_objects: Vec<String> = Vec::new();
+            let mut annots = String::new();
+            if page.link_annotations.len() > 0 {
+                for annot in &page.link_annotations {
+                    link_annotation_objects.push(format!("{} 0 R", annot.object_id));
+                }
+                annots = format!("/Annots [ {} ]", link_annotation_objects.join(" "));
+            }
             let content_id = page.content_id;
             let page_obj = PDFObject::new(
                 &format!(
-                    "/Type /Page 
+                    "/Type /Page
 /Parent {} 0 R 
 /Resources <<
     /Font {} 0 R 
     /ProcSet [ /PDF /Text {}] 
     {}
 >> 
-/MediaBox [0 0 {} {}] 
-/Contents {} 0 R ",
+/MediaBox [0 0 {} {}] {} 
+/Contents {} 0 R",
                     pages_id,
                     font_id,
                     if x_objects.is_empty() { "" } else { "/ImageC" },
                     x_object,
                     tpl.get_size().0,
                     tpl.get_size().1,
+                    annots,
                     content_id
                 ),
                 page.page_id,
