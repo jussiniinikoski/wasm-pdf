@@ -1,9 +1,7 @@
 #![allow(dead_code)]
 use super::canvas::Canvas;
 use super::font::{get_font, Font};
-use super::styles::{
-    CellStyle, HorizontalAlign, ImageStyle, ParagraphStyle, PathStyle, TableStyle,
-};
+use super::styles::{CellStyle, ImageStyle, ParagraphStyle, PathStyle, TableStyle};
 use super::text::{extract_links, TextSpan};
 use super::units::{Color, Point};
 use wasm_bindgen::prelude::*;
@@ -34,7 +32,6 @@ pub enum Stationary {
         font: &'static Font,
         x: f32,
         y: f32,
-        align: HorizontalAlign,
         color: Color,
     },
     Text {
@@ -43,7 +40,6 @@ pub enum Stationary {
         font: &'static Font,
         x: f32,
         y: f32,
-        align: HorizontalAlign,
         color: Color,
     },
 }

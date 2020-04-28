@@ -1,4 +1,4 @@
-const wasm_pdf = import('./pkg/wasm_pdf');
+const wasm_pdf = import('./pkg');
 
 const createPDF = (jsDocument) => {
     wasm_pdf.then(pdf => {

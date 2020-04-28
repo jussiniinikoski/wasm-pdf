@@ -7,7 +7,6 @@ use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table
 use super::objects::{PDFDocument, PDFImage, PDFPage /* LinkAnnotation */};
 use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
-use super::text::Text;
 use super::units::{Color, Line, Point, Rect};
 use crate::pdf::text::TextSpan;
 
@@ -56,12 +55,11 @@ impl Canvas {
                     font,
                     x,
                     y,
-                    align,
                     color,
                 } => {
                     let number = self.doc.page_number().to_string();
                     let point = Point { x, y };
-                    self.draw_text_line(&number, font_size, &font, point, align, color);
+                    self.draw_text_line(&number, font_size, &font, point, color);
                 }
                 Stationary::Text {
                     text,
@@ -69,11 +67,10 @@ impl Canvas {
                     font,
                     x,
                     y,
-                    align,
                     color,
                 } => {
                     let point = Point { x, y };
-                    self.draw_text_line(&text, font_size, &font, point, align, color);
+                    self.draw_text_line(&text, font_size, &font, point, color);
                 }
             }
         }
@@ -84,7 +81,6 @@ impl Canvas {
         font_size: f32,
         font: &Font,
         point: Point,
-        align: HorizontalAlign,
         color: Color,
     ) {
         self.save_state();
@@ -92,8 +88,7 @@ impl Canvas {
         self.save_state();
         self.set_fill_color(color.r, color.g, color.b);
         let mut out_text: Vec<u8> = Vec::new();
-        let width = font.get_width(font_size, text);
-        let encoded_text = Text::get_text_line(text, align, -width, 0.0);
+        let encoded_text = TextSpan::encode_text(text);
         out_text.extend(encoded_text);
         let mut stream = Vec::new();
         let leading = font_size;
@@ -427,6 +422,7 @@ impl Canvas {
         let mut out_text: Vec<u8> = Vec::new();
         if let Some(bullet) = &paragraph.style.bullet {
             let mut bullet_text: Vec<u8> = Vec::new();
+            write!(bullet_text, "-{} 0 Td ", paragraph.style.bullet_indent).unwrap();
             bullet_text.extend(TextSpan::encode_text(&bullet));
             let mut stream = Vec::new();
             write!(
@@ -446,13 +442,37 @@ impl Canvas {
         let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
         let mut break_page = false;
         for line in wrapped {
+            let mut line_width: f32 = 0.0;
+            let mut width_offset: f32 = 0.0;
             // check first if we have to write to next page
             if self.cursor.1 < frame_bottom {
                 break_page = true;
                 next_page_lines.push(line.clone());
             } else {
+                match paragraph.style.align {
+                    HorizontalAlign::Center => {
+                        for span in line {
+                            line_width += span.get_width(paragraph.font, paragraph.font_size);
+                        }
+                        width_offset = (available_width - line_width) / 2.0;
+                        write!(out_text, " {} 0 Td ", width_offset).unwrap();
+                    }
+                    HorizontalAlign::Right => {
+                        for span in line {
+                            line_width += span.get_width(paragraph.font, paragraph.font_size);
+                        }
+                        width_offset = (available_width - line_width);
+                        write!(out_text, " {} 0 Td ", width_offset).unwrap();
+                    }
+                    _ => (),
+                }
                 for span in line {
                     out_text.extend(span.encoded_text());
+                }
+                write!(out_text, " T* ").unwrap();
+                // Reset any offsets after printing a line
+                if width_offset != 0.0 {
+                    write!(out_text, " {} 0 Td ", -width_offset).unwrap();
                 }
                 self.cursor = (self.cursor.0, self.cursor.1 - leading);
             }

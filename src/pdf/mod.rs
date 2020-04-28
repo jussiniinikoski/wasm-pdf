@@ -17,8 +17,8 @@ use json::{
 };
 use models::{Cell, Document, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
 use styles::{
-    get_color, get_color_from_js, get_horizontal_align, get_image_style, get_paragraph_style,
-    get_path_style, get_table_style,
+    get_color, get_color_from_js, get_image_style, get_paragraph_style, get_path_style,
+    get_table_style,
 };
 use template::PageTemplate;
 use units::{Color, Point};
@@ -218,7 +218,6 @@ fn get_page_number(content: &JsContent) -> Stationary {
     let font_size = get_number_from_js(content.params.get("font_size"), 12.0);
     let x = get_number_from_js(content.params.get("x"), 50.0);
     let y = get_number_from_js(content.params.get("y"), 50.0);
-    let align = get_horizontal_align(&content);
     let font = get_font(p_font_name.to_lowercase().as_str());
     let color = get_color_from_js(content.params.get("color"), Color::new(0.0, 0.0, 0.0));
     Stationary::PageNumber {
@@ -226,7 +225,6 @@ fn get_page_number(content: &JsContent) -> Stationary {
         font_size,
         x,
         y,
-        align,
         color,
     }
 }
@@ -237,7 +235,6 @@ fn get_text_line(content: &JsContent) -> Stationary {
     let font_size = get_number_from_js(content.params.get("font_size"), 12.0);
     let x = get_number_from_js(content.params.get("x"), 50.0);
     let y = get_number_from_js(content.params.get("y"), 50.0);
-    let align = get_horizontal_align(&content);
     let font = get_font(p_font_name.to_lowercase().as_str());
     let color = get_color_from_js(content.params.get("color"), Color::new(0.0, 0.0, 0.0));
     Stationary::Text {
@@ -246,7 +243,6 @@ fn get_text_line(content: &JsContent) -> Stationary {
         font_size,
         x,
         y,
-        align,
         color,
     }
 }
