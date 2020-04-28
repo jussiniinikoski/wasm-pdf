@@ -492,7 +492,6 @@ impl Canvas {
                         }
                     }
                     out_text.extend(span.encoded_text());
-
                     _x += span_width;
                 }
                 write!(out_text, " T* ").unwrap();
