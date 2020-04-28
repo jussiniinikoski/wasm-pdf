@@ -417,10 +417,6 @@ impl Canvas {
         let padding_top = paragraph.style.padding.0;
         let padding_left = paragraph.style.padding.1;
         let padding_bottom = paragraph.style.padding.2;
-        let padding_right = paragraph.style.padding.3;
-        let horizontal_padding = padding_left + padding_right;
-        let bullet_indent = paragraph.style.bullet_indent;
-        let available_width = available_width - horizontal_padding - bullet_indent;
         self.cursor = (self.cursor.0, self.cursor.1 - leading - padding_top);
         self.save_state();
         self.translate(self.cursor.0 + padding_left, self.cursor.1);
