@@ -9,6 +9,7 @@ use super::styles::{HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
 use super::text::Text;
 use super::units::{Color, Line, Point, Rect};
+use crate::pdf::text::TextSpan;
 
 pub struct Canvas {
     output: Vec<u8>,
@@ -409,7 +410,7 @@ impl Canvas {
     pub fn draw_text(
         &mut self,
         paragraph: &Paragraph,
-        text: &str,
+        wrapped: &Vec<Vec<TextSpan>>,
         available_width: f32,
     ) -> Result<(), JsValue> {
         self.doc.add_font(paragraph.font); // font gets added only if it doesn't exist yet
@@ -426,7 +427,7 @@ impl Canvas {
         let mut out_text: Vec<u8> = Vec::new();
         if let Some(bullet) = &paragraph.style.bullet {
             let mut bullet_text: Vec<u8> = Vec::new();
-            bullet_text.extend(Text::get_bullet_text(&bullet));
+            bullet_text.extend(TextSpan::encode_text(&bullet));
             let mut stream = Vec::new();
             write!(
                 stream,
@@ -440,18 +441,19 @@ impl Canvas {
             writeln!(stream, " ET").unwrap();
             self.output.write_all(&stream).unwrap();
         }
-        // get lines as encoded and pure text
-        let (encoded_lines, text_lines) = Text::get_text_lines(paragraph, text, available_width);
-        let mut next_page_lines: Vec<String> = Vec::new();
+
+        let mut next_page_lines: Vec<Vec<TextSpan>> = Vec::new();
         let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
         let mut break_page = false;
-        for (i, encoded_line) in encoded_lines.iter().enumerate() {
+        for line in wrapped {
             // check first if we have to write to next page
             if self.cursor.1 < frame_bottom {
                 break_page = true;
-                next_page_lines.push(text_lines[i].clone());
+                next_page_lines.push(line.clone());
             } else {
-                out_text.extend(encoded_line);
+                for span in line {
+                    out_text.extend(span.encoded_text());
+                }
                 self.cursor = (self.cursor.0, self.cursor.1 - leading);
             }
         }
@@ -473,8 +475,7 @@ impl Canvas {
         self.restore_state();
         if break_page {
             self.save_page();
-            let next_page_text = next_page_lines.join(" ");
-            return self.draw_text(paragraph, &next_page_text, available_width);
+            return self.draw_text(paragraph, &next_page_lines, available_width);
         }
         Ok(())
     }

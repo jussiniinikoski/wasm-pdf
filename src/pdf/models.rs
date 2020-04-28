@@ -74,7 +74,6 @@ pub struct Paragraph {
     pub font: &'static Font,
     pub style: ParagraphStyle,
     spans: Vec<TextSpan>,
-    wrapped: Option<Vec<Vec<TextSpan>>>,
 }
 
 impl Paragraph {
@@ -86,7 +85,6 @@ impl Paragraph {
             font: get_font(font_name.to_lowercase().as_str()),
             style,
             spans: text_spans,
-            wrapped: None,
         }
     }
     pub fn get_spans(&self) -> &Vec<TextSpan> {
@@ -168,7 +166,8 @@ impl Content for Paragraph {
         let horizontal_padding = padding_left + padding_right;
         let bullet_indent = self.style.bullet_indent;
         let available_width = available_width - horizontal_padding - bullet_indent;
-        canvas.draw_text(&self, &self.text, available_width)
+        let wrapped = self.wrap_to_width(available_width);
+        canvas.draw_text(&self, &wrapped, available_width)
     }
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
         // Calculate width and height according to wrapped
