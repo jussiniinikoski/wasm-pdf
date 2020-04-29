@@ -146,6 +146,7 @@ mod tests {
         let sample_text = "<a href='https://www.microsoft.com'>Microsoft Corporation</a>. Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
         <a href='https://www.google.com'>A Link to Google</a>. Aliquam maximus tincidunt nisl. <a href='https://www.yaloo.com'>A Link to Yahoo</a>. Ends here.";
         let color = Color::new(0.0, 0.0, 0.0);
+        let link_color = Color::new(0.9, 0.4, 0.4);
         let style: ParagraphStyle = ParagraphStyle::new(
             12.0,
             HorizontalAlign::Left,
@@ -153,6 +154,7 @@ mod tests {
             0.0,
             (0.0, 0.0, 0.0, 0.0),
             color,
+            link_color,
         );
         let p: Paragraph = Paragraph::new(&sample_text, "helvetica", 12.0, style);
         let wrapped = p.wrap_to_width(300.0);

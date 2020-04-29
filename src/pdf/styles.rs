@@ -90,6 +90,7 @@ pub struct ParagraphStyle {
     pub bullet_indent: f32,
     pub padding: (f32, f32, f32, f32),
     pub color: Color,
+    pub link_color: Color,
 }
 
 impl ParagraphStyle {
@@ -100,6 +101,7 @@ impl ParagraphStyle {
         bullet_indent: f32,
         padding: (f32, f32, f32, f32),
         color: Color,
+        link_color: Color,
     ) -> ParagraphStyle {
         ParagraphStyle {
             leading,
@@ -108,6 +110,7 @@ impl ParagraphStyle {
             bullet_indent,
             padding,
             color,
+            link_color,
         }
     }
 }
@@ -150,6 +153,15 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
     } else {
         Color::new(0.0, 0.0, 0.0)
     };
+    let link_color = if let Some(color) = content.params.get("link_color") {
+        if let Some(rgb_color) = get_color(color) {
+            rgb_color
+        } else {
+            Color::new(0.0, 0.0, 0.0)
+        }
+    } else {
+        Color::new(0.0, 0.0, 0.0)
+    };
     ParagraphStyle {
         leading: p_leading,
         align: p_align,
@@ -157,6 +169,7 @@ pub fn get_paragraph_style(content: &JsContent, p_font_size: f32) -> ParagraphSt
         bullet_indent: p_bullet_indent,
         padding: p_padding,
         color: p_color,
+        link_color,
     }
 }
 

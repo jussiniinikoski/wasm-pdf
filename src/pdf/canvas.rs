@@ -419,6 +419,7 @@ impl Canvas {
         self.translate(self.cursor.0 + padding_left, self.cursor.1);
         self.save_state();
         let color = paragraph.style.color;
+        let link_color = paragraph.style.link_color;
         self.set_fill_color(color.r, color.g, color.b);
         let mut out_text: Vec<u8> = Vec::new();
         if let Some(bullet) = &paragraph.style.bullet {
@@ -478,7 +479,10 @@ impl Canvas {
                             let annot =
                                 LinkAnnotation::new(&url, _x, _y, _x + span_width, _y + leading);
                             self.link_annotations.push(annot);
-                            out_text.extend(format!(" {} {} {} rg ", 0.2, 0.2, 1.0).as_bytes());
+                            out_text.extend(
+                                format!(" {} {} {} rg ", link_color.r, link_color.g, link_color.b)
+                                    .as_bytes(),
+                            );
                             text_color_changed = true;
                         }
                         _ => {
