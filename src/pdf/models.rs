@@ -2,7 +2,7 @@
 use super::canvas::Canvas;
 use super::font::{get_font, Font};
 use super::styles::{CellStyle, ImageStyle, ParagraphStyle, PathStyle, TableStyle};
-use super::text::{extract_links, TextSpan};
+use super::text::TextSpan;
 use super::units::{Color, Point};
 use wasm_bindgen::prelude::*;
 
@@ -65,7 +65,6 @@ impl Document {
 }
 
 pub struct Paragraph {
-    pub text: String,
     pub font_size: f32,
     pub font: &'static Font,
     pub style: ParagraphStyle,
@@ -76,7 +75,6 @@ impl Paragraph {
     pub fn new(text: &str, font_name: &str, font_size: f32, style: ParagraphStyle) -> Paragraph {
         let text_spans = TextSpan::extract_spans(&text);
         Paragraph {
-            text: extract_links(text),
             font_size,
             font: get_font(font_name.to_lowercase().as_str()),
             style,
