@@ -111,9 +111,11 @@ impl Paragraph {
                 if current_width > available_width {
                     next_word = Some(word.to_string());
                     let span_text = span_words.join(" ");
-                    let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
-                    line_spans.push(text_span);
-                    wrapped.push(line_spans);
+                    if !span_text.is_empty() {
+                        let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
+                        line_spans.push(text_span);
+                        wrapped.push(line_spans);
+                    }
                     line_words = Vec::new();
                     line_spans = Vec::new();
                     span_words = Vec::new();

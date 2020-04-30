@@ -2,7 +2,7 @@ use std::io::Write;
 use std::str;
 use wasm_bindgen::prelude::*;
 
-use super::font::Font;
+use super::font::{Font, get_font};
 use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
 use super::objects::{LinkAnnotation, PDFDocument, PDFImage, PDFPage};
 use super::styles::{HorizontalAlign, VerticalAlign};
@@ -472,6 +472,7 @@ impl Canvas {
                 let mut _y: f32 = self.cursor.1;
 
                 let mut text_color_changed = false;
+                let mut font_weight_is_bold = false;
                 for span in line {
                     let span_width = span.get_width(paragraph.font, paragraph.font_size);
                     match &span.tag {
@@ -484,14 +485,33 @@ impl Canvas {
                                     .as_bytes(),
                             );
                             text_color_changed = true;
-                        }
+                        },
+                        Tag::Bold => {
+                            let font_name = paragraph.font.get_name().to_lowercase();
+                            let mut new_font_name = String::from(&font_name);
+                            if !font_name.ends_with("bold") {
+                                new_font_name = format!("{}-bold", font_name);
+                            }
+                            let font = get_font(&new_font_name);
+                            out_text.extend(
+                                format!(" /{} {} Tf ", font.get_ref(), paragraph.font_size).as_bytes()
+                            );
+                            font_weight_is_bold = true;
+                        },
                         _ => {
-                            // Only change text color when necessary.
+                            // Change back normal text color.
                             if text_color_changed {
                                 out_text.extend(
                                     format!(" {} {} {} rg ", color.r, color.g, color.b).as_bytes(),
                                 );
                                 text_color_changed = false;
+                            }
+                            // Change back to normal font.
+                            if font_weight_is_bold {
+                                out_text.extend(
+                                    format!(" /{} {} Tf ", paragraph.font.get_ref(), paragraph.font_size).as_bytes()
+                                );
+                                font_weight_is_bold = false;
                             }
                         }
                     }

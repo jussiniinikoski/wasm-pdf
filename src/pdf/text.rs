@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use super::encoders::winansi;
-use crate::pdf::font::Font;
+use super::font::{Font, get_font};
 use regex::Regex;
 use std::io::Write;
 
@@ -24,11 +24,14 @@ impl TextSpan {
     pub fn new(text: String, tag: Tag) -> TextSpan {
         TextSpan { text, tag }
     }
-    /// Generate all spans for given text.
+    /// Generate all spans for given text. 
+    /// Combines <a> and <b> tags into one regex to get capture groups.
     pub fn extract_spans(p_text: &str) -> Vec<TextSpan> {
         lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r"<a[\s]+href='(?P<url>[^']+)'[^>]*?>(?P<link>.*?)</a>").unwrap();
+            static ref RE: Regex = Regex::new(
+                r"(<a[\s]+href='(?P<url>[^']+)'[^>]*?>(?P<a_text>.*?)</a>)|(<b>(?P<b_text>.*?)</b>)"
+            )
+            .unwrap();
         }
         let mut text_parts: Vec<TextSpan> = Vec::new();
         let mut current_index = 0;
@@ -41,14 +44,21 @@ impl TextSpan {
                     let span = TextSpan::new(String::from(text), Tag::Span);
                     text_parts.push(span);
                 }
-                if let (Some(url), Some(link)) = (capture.name("url"), capture.name("link")) {
-                    let span = TextSpan::new(
-                        String::from(link.as_str()),
-                        Tag::Link {
-                            url: String::from(url.as_str()),
-                        },
-                    );
-                    text_parts.push(span);
+                if let (Some(url), Some(text)) = (capture.name("url"), capture.name("a_text")) {
+                    if !text.as_str().is_empty() {
+                        let span = TextSpan::new(
+                            String::from(text.as_str()),
+                            Tag::Link {
+                                url: String::from(url.as_str()),
+                            },
+                        );
+                        text_parts.push(span);
+                    }
+                } else if let Some(text) = capture.name("b_text") {
+                    if !text.as_str().is_empty() {
+                        let span = TextSpan::new(String::from(text.as_str()), Tag::Bold);
+                        text_parts.push(span);
+                    }
                 }
                 current_index = end_index;
             }
@@ -69,7 +79,20 @@ impl TextSpan {
     /// Get width of text
     pub fn get_width(&self, font: &'static Font, font_size: f32) -> f32 {
         let text = format!("{} ", self.text); // add one space
-        font.get_width(font_size, &text)
+        match self.tag {
+            Tag::Bold => {
+                let font_name = font.get_name().to_lowercase();
+                let mut new_font_name = String::from(&font_name);
+                if !font_name.ends_with("bold") {
+                    new_font_name = format!("{}-bold", font_name);
+                }
+                let font = get_font(&new_font_name);
+                font.get_width(font_size, &text)
+            },
+            _ => font.get_width(font_size, &text)
+            
+        }
+        
     }
 
     /// Get encoded text
@@ -144,7 +167,7 @@ mod tests {
     #[test]
     fn test_wrap_to_width() {
         let sample_text = "<a href='https://www.microsoft.com'>Microsoft Corporation</a>. Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
-        <a href='https://www.google.com'>A Link to Google</a>. Aliquam maximus tincidunt nisl. <a href='https://www.yaloo.com'>A Link to Yahoo</a>. Ends here.";
+        <a href='https://www.google.com'>A Link to Google</a>. Aliquam <b>maximus</b> tincidunt nisl. <a href='https://www.yaloo.com'>A Link to Yahoo</a>. Ends here.";
         let color = Color::new(0.0, 0.0, 0.0);
         let link_color = Color::new(0.9, 0.4, 0.4);
         let style: ParagraphStyle = ParagraphStyle::new(
