@@ -2,7 +2,7 @@ use std::io::Write;
 use std::str;
 use wasm_bindgen::prelude::*;
 
-use super::font::{Font, get_font};
+use super::font::{get_font, Font};
 use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
 use super::objects::{LinkAnnotation, PDFDocument, PDFImage, PDFPage};
 use super::styles::{HorizontalAlign, VerticalAlign};
@@ -485,19 +485,21 @@ impl Canvas {
                                     .as_bytes(),
                             );
                             text_color_changed = true;
-                        },
+                        }
                         Tag::Bold => {
                             let font_name = paragraph.font.get_name().to_lowercase();
-                            let mut new_font_name = String::from(&font_name);
-                            if !font_name.ends_with("bold") {
-                                new_font_name = format!("{}-bold", font_name);
-                            }
+                            let new_font_name = if !font_name.ends_with("bold") {
+                                format!("{}-bold", font_name)
+                            } else {
+                                String::from(&font_name)
+                            };
                             let font = get_font(&new_font_name);
                             out_text.extend(
-                                format!(" /{} {} Tf ", font.get_ref(), paragraph.font_size).as_bytes()
+                                format!(" /{} {} Tf ", font.get_ref(), paragraph.font_size)
+                                    .as_bytes(),
                             );
                             font_weight_is_bold = true;
-                        },
+                        }
                         _ => {
                             // Change back normal text color.
                             if text_color_changed {
@@ -509,7 +511,12 @@ impl Canvas {
                             // Change back to normal font.
                             if font_weight_is_bold {
                                 out_text.extend(
-                                    format!(" /{} {} Tf ", paragraph.font.get_ref(), paragraph.font_size).as_bytes()
+                                    format!(
+                                        " /{} {} Tf ",
+                                        paragraph.font.get_ref(),
+                                        paragraph.font_size
+                                    )
+                                    .as_bytes(),
                                 );
                                 font_weight_is_bold = false;
                             }

@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use super::encoders::winansi;
-use super::font::{Font, get_font};
+use super::font::{get_font, Font};
 use regex::Regex;
 use std::io::Write;
 
@@ -24,7 +24,7 @@ impl TextSpan {
     pub fn new(text: String, tag: Tag) -> TextSpan {
         TextSpan { text, tag }
     }
-    /// Generate all spans for given text. 
+    /// Generate all spans for given text.
     /// Combines <a> and <b> tags into one regex to get capture groups.
     pub fn extract_spans(p_text: &str) -> Vec<TextSpan> {
         lazy_static! {
@@ -82,17 +82,16 @@ impl TextSpan {
         match self.tag {
             Tag::Bold => {
                 let font_name = font.get_name().to_lowercase();
-                let mut new_font_name = String::from(&font_name);
-                if !font_name.ends_with("bold") {
-                    new_font_name = format!("{}-bold", font_name);
-                }
+                let new_font_name = if !font_name.ends_with("bold") {
+                    format!("{}-bold", font_name)
+                } else {
+                    String::from(&font_name)
+                };
                 let font = get_font(&new_font_name);
                 font.get_width(font_size, &text)
-            },
-            _ => font.get_width(font_size, &text)
-            
+            }
+            _ => font.get_width(font_size, &text),
         }
-        
     }
 
     /// Get encoded text
