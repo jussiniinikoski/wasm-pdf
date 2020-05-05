@@ -30,7 +30,7 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Basic styling (all styling parameters are optional)
   * Custom template size (defaults to A4 portrait with 50 px margins)
   * Page numbers and stationary text can be included in template
-  * Inline links (2020/04/28)
+  * Inline links and bold text (a and b tags) inside paragraph text
 
 ## Example input (JSON)
 
