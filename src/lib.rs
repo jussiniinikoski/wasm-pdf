@@ -22,7 +22,7 @@ pub fn run(json: &JsValue) -> Result<(), JsValue> {
     let js_doc = get_js_doc(&json).unwrap();
     let bytes = match pdf::create(&js_doc) {
         Ok(b) => b,
-        Err(s) => return Err(s),
+        Err(s) => return Err(JsValue::from_str(s)),
     };
     generate_file(&bytes);
     Ok(())

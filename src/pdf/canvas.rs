@@ -1,6 +1,6 @@
 use std::io::Write;
 use std::str;
-use wasm_bindgen::prelude::*;
+//use wasm_bindgen::prelude::*;
 
 use super::font::{get_font, Font};
 use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
@@ -158,14 +158,14 @@ impl Canvas {
     pub fn set_cursor(&mut self, x: f32, y: f32) {
         self.cursor = (x, y);
     }
-    pub fn draw_spacer(&mut self, spacer: &Spacer) -> Result<(), JsValue> {
+    pub fn draw_spacer(&mut self, spacer: &Spacer) -> Result<(), &'static str> {
         self.set_cursor(self.cursor.0 + spacer.width, self.cursor.1 - spacer.height);
         self.save_state();
         self.translate(self.cursor.0, self.cursor.1);
         self.restore_state();
         Ok(())
     }
-    pub fn draw_path(&mut self, path: &Path, available_width: f32) -> Result<(), JsValue> {
+    pub fn draw_path(&mut self, path: &Path, available_width: f32) -> Result<(), &'static str> {
         let pos_x = match path.style.horizontal_align {
             HorizontalAlign::Left => self.cursor.0,
             HorizontalAlign::Center => self.cursor.0 + (available_width - path.width) / 2.0,
@@ -218,7 +218,7 @@ impl Canvas {
         table_cursor: (f32, f32),
         is_first_row: bool,
         new_page: bool,
-    ) -> Result<(), JsValue> {
+    ) -> Result<(), &'static str> {
         let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
         let horizontal_padding = table.style.padding_left + table.style.padding_right;
         let vertical_padding = table.style.padding_bottom + table.style.padding_top;
@@ -252,9 +252,7 @@ impl Canvas {
                     content.wrap((cell_width - horizontal_padding, available_height));
                 if actual_height > available_height {
                     if new_page {
-                        return Err(JsValue::from_str(
-                            "Cell content is too large to fit on page.",
-                        ));
+                        return Err("Cell content is too large to fit on page.");
                     }
                     // Cell content doesn't fit, open new page
                     self.save_page();
@@ -342,7 +340,7 @@ impl Canvas {
         }
         Ok(())
     }
-    pub fn draw_table(&mut self, table: &Table) -> Result<(), JsValue> {
+    pub fn draw_table(&mut self, table: &Table) -> Result<(), &'static str> {
         let table_cursor = self.cursor;
         // Render rows individually (may render on separate pages).
         let mut is_first_row = true;
@@ -358,7 +356,7 @@ impl Canvas {
         image: &Image,
         new_page: bool,
         available_width: f32,
-    ) -> Result<(), JsValue> {
+    ) -> Result<(), &'static str> {
         // add image to canvas images first, then add transform to output
         // check first if image fits to this page..
         let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
@@ -383,7 +381,7 @@ impl Canvas {
         };
         if self.cursor.1 - image.height < frame_bottom {
             if new_page {
-                return Err(JsValue::from_str("Image is too large to fit on page."));
+                return Err("Image is too large to fit on page.");
             }
             self.save_page();
             return self.draw_image(image, true, available_width);
@@ -408,7 +406,7 @@ impl Canvas {
         paragraph: &Paragraph,
         wrapped: &[Vec<TextSpan>],
         available_width: f32,
-    ) -> Result<(), JsValue> {
+    ) -> Result<(), &'static str> {
         self.doc.add_font(paragraph.font); // font gets added only if it doesn't exist yet
         let leading = paragraph.style.leading;
         let padding_top = paragraph.style.padding.0;
@@ -555,7 +553,7 @@ impl Canvas {
         }
         Ok(())
     }
-    pub fn build(&mut self) -> Result<Vec<u8>, JsValue> {
+    pub fn build(&mut self) -> Result<Vec<u8>, &'static str> {
         self.save_page();
         self.doc.save_document(&self.template)
     }

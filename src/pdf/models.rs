@@ -4,7 +4,6 @@ use super::font::{get_font, Font};
 use super::styles::{CellStyle, ImageStyle, ParagraphStyle, PathStyle, TableStyle};
 use super::text::TextSpan;
 use super::units::{Color, Point};
-use wasm_bindgen::prelude::*;
 
 pub enum ContentType {
     Paragraph,
@@ -16,7 +15,7 @@ pub enum ContentType {
 
 // Content Trait is the center piece here.
 pub trait Content {
-    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), JsValue>;
+    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), &'static str>;
     // wrap element, takes available width, height and returns actual width, height
     fn wrap(&self, area: (f32, f32)) -> (f32, f32);
     // define content type
@@ -156,7 +155,7 @@ impl Paragraph {
 }
 
 impl Content for Paragraph {
-    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), JsValue> {
+    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), &'static str> {
         let padding_left = self.style.padding.1;
         let padding_right = self.style.padding.3;
         let horizontal_padding = padding_left + padding_right;
@@ -187,7 +186,7 @@ impl Spacer {
 }
 
 impl Content for Spacer {
-    fn draw(&self, canvas: &mut Canvas, _available_width: f32) -> Result<(), JsValue> {
+    fn draw(&self, canvas: &mut Canvas, _available_width: f32) -> Result<(), &'static str> {
         canvas.draw_spacer(&self)
     }
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
@@ -225,7 +224,7 @@ impl Image {
 }
 
 impl Content for Image {
-    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), JsValue> {
+    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), &'static str> {
         canvas.draw_image(&self, false, available_width)
     }
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
@@ -296,7 +295,7 @@ impl Table {
 }
 
 impl Content for Table {
-    fn draw(&self, canvas: &mut Canvas, _available_width: f32) -> Result<(), JsValue> {
+    fn draw(&self, canvas: &mut Canvas, _available_width: f32) -> Result<(), &'static str> {
         canvas.draw_table(&self)
     }
     fn wrap(&self, area: (f32, f32)) -> (f32, f32) {
@@ -345,7 +344,7 @@ impl Path {
 }
 
 impl Content for Path {
-    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), JsValue> {
+    fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), &'static str> {
         canvas.draw_path(&self, available_width)
     }
     fn wrap(&self, _area: (f32, f32)) -> (f32, f32) {

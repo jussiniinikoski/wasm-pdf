@@ -1,9 +1,6 @@
-#![allow(dead_code)]
-
 use std::collections::HashSet;
 use std::io::Write;
 use std::str;
-use wasm_bindgen::prelude::*;
 
 use super::encoders;
 use super::font::Font;
@@ -15,7 +12,6 @@ pub struct PDFDocument {
     pages: Vec<PDFPage>,
     page_counter: u16,
     image_counter: u16,
-    annotation_counter: u16,
     fonts: HashSet<&'static Font>,
 }
 
@@ -25,7 +21,6 @@ impl PDFDocument {
             pages: Vec::new(),
             page_counter: 1,
             image_counter: 0,
-            annotation_counter: 0,
             fonts: HashSet::new(),
         }
     }
@@ -43,11 +38,7 @@ impl PDFDocument {
         self.image_counter += 1;
         self.image_counter
     }
-    pub fn get_annotation_id(&mut self) -> u16 {
-        self.annotation_counter += 1;
-        self.annotation_counter
-    }
-    pub fn save_document(&mut self, tpl: &PageTemplate) -> Result<Vec<u8>, JsValue> {
+    pub fn save_document(&mut self, tpl: &PageTemplate) -> Result<Vec<u8>, &'static str> {
         let mut pdf = PDFFile::new();
         let font_id = pdf.get_new_object_id();
         let mut font_resources = String::new();

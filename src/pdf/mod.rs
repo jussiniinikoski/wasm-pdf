@@ -31,7 +31,7 @@ extern "C" {
     pub fn json_out(data: &JsValue);
 }
 
-pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, JsValue> {
+pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, &'static str> {
     // add document content to template and build
     let mut template = PageTemplate::new(
         js_doc.template.size,
@@ -83,7 +83,7 @@ pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, JsValue> {
     template.build(&doc)
 }
 
-fn get_table(content: &JsContent, js_doc: &JsDocument) -> Result<Table, JsValue> {
+fn get_table(content: &JsContent, js_doc: &JsDocument) -> Result<Table, &'static str> {
     let table_style = get_table_style(content);
     let mut table = Table::new(table_style);
     if let Some(rows) = content.params.get("rows") {
@@ -244,5 +244,37 @@ fn get_text_line(content: &JsContent) -> Stationary {
         x,
         y,
         color,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::create;
+    use super::json::JsDocument;
+    use serde_json;
+
+    #[test]
+    fn test_create() {
+        let data = r#"
+        {
+            "title": "Example Document",
+            "contents": [{
+                    "obj_type": "Paragraph",
+                    "params": {
+                        "text": "Hello World!",
+                        "font_size": 18,
+                        "leading": 24,
+                        "align": "center",
+                        "font_name": "Helvetica-Bold"
+                    }
+                }
+            ]
+        }"#;
+        let js_doc: JsDocument = serde_json::from_str(data).unwrap();
+        let bytes = match create(&js_doc) {
+            Ok(b) => b,
+            Err(s) => format!("{}", s).into(),
+        };
+        assert!(bytes.starts_with(b"%PDF-1.4\n%\x93\x8C\x8B\x9E WASM-PDF library\n"));
     }
 }

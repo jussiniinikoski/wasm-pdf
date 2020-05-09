@@ -1,6 +1,3 @@
-#![allow(dead_code)]
-use wasm_bindgen::prelude::*;
-
 use super::canvas::Canvas;
 use super::models::{Document, Stationary};
 
@@ -31,7 +28,7 @@ impl PageTemplate {
             stationary: Vec::new(),
         }
     }
-    pub fn build(&self, doc: &Document) -> Result<Vec<u8>, JsValue> {
+    pub fn build(&self, doc: &Document) -> Result<Vec<u8>, &'static str> {
         let mut canvas = Canvas::new(&self);
         for element in doc.get_content() {
             element.draw(&mut canvas, self.frame.width)?;
