@@ -1,5 +1,3 @@
-use wasm_bindgen::prelude::*;
-
 mod canvas;
 mod encoders;
 mod font;
@@ -22,14 +20,6 @@ use styles::{
 };
 use template::PageTemplate;
 use units::{Color, Point};
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    pub fn log(msg: &str);
-    #[wasm_bindgen(js_name = jsonOut)]
-    pub fn json_out(data: &JsValue);
-}
 
 pub fn create(js_doc: &JsDocument) -> Result<Vec<u8>, &'static str> {
     // add document content to template and build

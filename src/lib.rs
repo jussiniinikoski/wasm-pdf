@@ -1,18 +1,17 @@
 use wasm_bindgen::prelude::*;
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate lazy_static;
 extern crate console_error_panic_hook;
+extern crate pdf_gen;
 
-mod pdf;
-use pdf::json::JsDocument;
-use pdf::json_out;
+use pdf_gen::pdf::json::JsDocument;
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_name = generatePDF)]
     fn generate_file(s: &[u8]);
+    #[wasm_bindgen(js_namespace = console)]
+    pub fn log(msg: &str);
+    #[wasm_bindgen(js_name = jsonOut)]
+    pub fn json_out(data: &JsValue);
 }
 
 #[wasm_bindgen]
@@ -20,7 +19,7 @@ pub fn run(json: &JsValue) -> Result<(), JsValue> {
     // output panics to console.error
     console_error_panic_hook::set_once();
     let js_doc = get_js_doc(&json).unwrap();
-    let bytes = match pdf::create(&js_doc) {
+    let bytes = match pdf_gen::pdf::create(&js_doc) {
         Ok(b) => b,
         Err(s) => return Err(JsValue::from_str(s)),
     };
