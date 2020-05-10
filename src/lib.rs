@@ -2,8 +2,8 @@ use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 extern crate wasm_pdf_gen;
 
-use wasm_pdf_gen::pdf::json::JsDocument;
 use wasm_pdf_gen::pdf::create;
+use wasm_pdf_gen::pdf::json::JsDocument;
 
 #[wasm_bindgen]
 extern "C" {
