@@ -1,5 +1,5 @@
 [package]
-name = "pdf_gen"
+name = "wasm-pdf-gen"
 version = "0.1.0"
 authors = ["jussiniinikoski <jussi.niinikoski@perjantai.fi>"]
 edition = "2018"

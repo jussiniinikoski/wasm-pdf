@@ -13,7 +13,7 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-pdf_gen = { path = "crates/pdf_gen"}
+wasm-pdf-gen = { path = "crates/wasm-pdf-gen"}
 wasm-bindgen = { version = "0.2.62", features = ["serde-serialize"]  }
 console_error_panic_hook = "0.1.6"
 js-sys = "0.3.39"
@@ -28,3 +28,8 @@ features = [
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.12"
+
+[workspace]
+members = [
+  "crates/wasm-pdf-gen",
+]
