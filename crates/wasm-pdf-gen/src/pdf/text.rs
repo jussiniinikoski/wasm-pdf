@@ -22,7 +22,10 @@ pub struct TextSpan {
 
 impl TextSpan {
     pub fn new(text: &str, tag: Tag) -> TextSpan {
-        TextSpan { text: String::from(text), tag }
+        TextSpan {
+            text: String::from(text),
+            tag,
+        }
     }
     /// Generate all spans for given text.
     /// Combines <a> and <b> tags into one regex to get capture groups.
@@ -180,6 +183,9 @@ mod tests {
         let p: Paragraph = Paragraph::new(&sample_text, "helvetica", 12.0, style);
         let wrapped = p.wrap_to_width(300.0);
         println!("{:?}", wrapped);
-        assert_eq!(wrapped.last().unwrap().last().unwrap().text, ". Ends here. ");
+        assert_eq!(
+            wrapped.last().unwrap().last().unwrap().text,
+            ". Ends here. "
+        );
     }
 }
