@@ -17,6 +17,6 @@ module.exports = {
             crateDirectory: path.resolve(__dirname, ".")
         }),
     ],
-    //mode: 'development'
-    mode: 'production' // <- switch to this when building a release version ($ npm run build --release)
+    mode: 'development'
+    //mode: 'production' // <- switch to this when building a release version ($ npm run build --release)
 };
