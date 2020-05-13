@@ -1,9 +1,13 @@
 #![allow(dead_code)]
 use super::canvas::Canvas;
 use super::font::{get_font, Font};
-use super::styles::{CellStyle, ImageStyle, ParagraphStyle, PathStyle, TableStyle};
+use super::styles::{CellStyle, Color, ImageStyle, ParagraphStyle, PathStyle, TableStyle};
 use super::text::TextSpan;
-use super::units::{Color, Point};
+use super::units::Point;
+
+use super::json::{
+    get_bool_from_js, get_number_from_js, get_text_from_js, JsContent, JsDocument, JsParamValue,
+};
 
 pub enum ContentType {
     Paragraph,
@@ -15,6 +19,7 @@ pub enum ContentType {
 
 // Content Trait is the center piece here.
 pub trait Content {
+    // draw element to canvas with available width
     fn draw(&self, canvas: &mut Canvas, available_width: f32) -> Result<(), &'static str>;
     // wrap element, takes available width, height and returns actual width, height
     fn wrap(&self, area: (f32, f32)) -> (f32, f32);
@@ -43,6 +48,43 @@ pub enum Stationary {
     },
 }
 
+impl Stationary {
+    pub fn page_number(content: &JsContent) -> Stationary {
+        let p_font_name = get_text_from_js(content.params.get("font_name"), "Helvetica");
+        let font_size = get_number_from_js(content.params.get("font_size"), 12.0);
+        let x = get_number_from_js(content.params.get("x"), 50.0);
+        let y = get_number_from_js(content.params.get("y"), 50.0);
+        let font = get_font(p_font_name.to_lowercase().as_str());
+        let color =
+            Color::from_param_or_default(content.params.get("color"), Color::new(0.0, 0.0, 0.0));
+        Stationary::PageNumber {
+            font,
+            font_size,
+            x,
+            y,
+            color,
+        }
+    }
+    pub fn text(content: &JsContent) -> Stationary {
+        let text = get_text_from_js(content.params.get("text"), "");
+        let p_font_name = get_text_from_js(content.params.get("font_name"), "Helvetica");
+        let font_size = get_number_from_js(content.params.get("font_size"), 12.0);
+        let x = get_number_from_js(content.params.get("x"), 50.0);
+        let y = get_number_from_js(content.params.get("y"), 50.0);
+        let font = get_font(p_font_name.to_lowercase().as_str());
+        let color =
+            Color::from_param_or_default(content.params.get("color"), Color::new(0.0, 0.0, 0.0));
+        Stationary::Text {
+            text,
+            font,
+            font_size,
+            x,
+            y,
+            color,
+        }
+    }
+}
+
 pub struct Document {
     title: String,
     content: Vec<Box<dyn Content>>,
@@ -64,9 +106,9 @@ impl Document {
 }
 
 pub struct Paragraph {
-    pub font_size: f32,
-    pub font: &'static Font,
-    pub style: ParagraphStyle,
+    font_size: f32,
+    font: &'static Font,
+    style: ParagraphStyle,
     spans: Vec<TextSpan>,
 }
 
@@ -80,8 +122,24 @@ impl Paragraph {
             spans: text_spans,
         }
     }
+    pub fn get_font_size(&self) -> f32 {
+        self.font_size
+    }
+    pub fn get_font(&self) -> &'static Font {
+        self.font
+    }
+    pub fn get_style(&self) -> &ParagraphStyle {
+        &self.style
+    }
     pub fn get_spans(&self) -> &Vec<TextSpan> {
         &self.spans
+    }
+    pub fn from_content(content: &JsContent) -> Paragraph {
+        let p_font_name = get_text_from_js(content.params.get("font_name"), "Helvetica");
+        let p_font_size = get_number_from_js(content.params.get("font_size"), 12.0);
+        let p_style = ParagraphStyle::from_content(&content, p_font_size);
+        let text_value = get_text_from_js(content.params.get("text"), "");
+        Paragraph::new(&text_value, &p_font_name, p_font_size, p_style)
     }
 
     /// Generate wrapped text spans, a line may contain multiple spans
@@ -93,41 +151,43 @@ impl Paragraph {
         let mut wrapped: Vec<Vec<TextSpan>> = Vec::new();
         // contains line of spans
         let mut line_spans: Vec<TextSpan> = Vec::new();
-        // contains words per line
-        let mut line_words: Vec<String> = Vec::new();
+        // line of text
+        let mut line = String::new();
         for span in self.get_spans() {
             let words: Vec<&str> = span.text.split_whitespace().collect();
             let mut next_word: Option<String> = None;
-            let mut span_words: Vec<String> = Vec::new();
+            let mut span_text = String::new();
             for word in words {
                 if let Some(_next_word) = next_word {
-                    line_words.push(_next_word.clone());
-                    span_words.push(_next_word);
+                    line += &_next_word;
+                    line += " ";
+                    span_text += &_next_word;
+                    span_text += " ";
                     next_word = None;
                 }
-                line_words.push(word.to_string());
-                let current_width = font.get_width(size, &line_words.join(" "));
+                line += word;
+                line += " ";
+                let current_width = font.get_width(size, &line.trim_end());
                 if current_width > available_width {
                     next_word = Some(word.to_string());
-                    let span_text = span_words.join(" ");
                     if !span_text.is_empty() {
-                        let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
+                        let text_span = TextSpan::new(&span_text.trim_end(), span.tag.clone());
                         line_spans.push(text_span);
                         wrapped.push(line_spans);
                     }
-                    line_words = Vec::new();
+                    line = String::new();
                     line_spans = Vec::new();
-                    span_words = Vec::new();
+                    span_text = String::new();
                 } else {
-                    span_words.push(word.to_string());
+                    span_text += word;
+                    span_text += " ";
                 }
             }
-            if !span_words.is_empty() || next_word != None {
+            if !span_text.is_empty() || next_word != None {
                 if let Some(_next_word) = next_word {
-                    span_words.push(_next_word);
+                    span_text += &_next_word;
                 }
-                let span_text = span_words.join(" ");
-                let text_span = TextSpan::new(span_text.to_string(), span.tag.clone());
+                let text_span = TextSpan::new(&span_text, span.tag.clone());
                 line_spans.push(text_span);
             }
         }
@@ -175,13 +235,21 @@ impl Content for Paragraph {
 }
 
 pub struct Spacer {
-    pub width: f32,
-    pub height: f32,
+    width: f32,
+    height: f32,
 }
 
 impl Spacer {
     pub fn new(width: f32, height: f32) -> Spacer {
         Spacer { width, height }
+    }
+    pub fn from_content(content: &JsContent) -> Spacer {
+        let p_width = get_number_from_js(content.params.get("width"), 0.0);
+        let p_height = get_number_from_js(content.params.get("height"), 0.0);
+        Spacer::new(p_width, p_height)
+    }
+    pub fn get_dimensions(&self) -> (f32, f32) {
+        (self.width, self.height)
     }
 }
 
@@ -198,11 +266,11 @@ impl Content for Spacer {
 }
 
 pub struct Image {
-    pub data: Vec<u8>,
-    pub width: f32,
-    pub height: f32,
-    pub fit_width: bool,
-    pub style: ImageStyle,
+    data: Vec<u8>,
+    width: f32,
+    height: f32,
+    fit_width: bool,
+    style: ImageStyle,
 }
 
 impl Image {
@@ -220,6 +288,42 @@ impl Image {
             fit_width,
             style,
         }
+    }
+    pub fn get_data(&self) -> &Vec<u8> {
+        &self.data
+    }
+    pub fn get_dimensions(&self) -> (f32, f32) {
+        (self.width, self.height)
+    }
+    pub fn fits_width(&self) -> bool {
+        self.fit_width
+    }
+    pub fn get_style(&self) -> &ImageStyle {
+        &self.style
+    }
+    pub fn from_content(content: &JsContent, js_doc: &JsDocument) -> Option<Image> {
+        let fit_width = get_bool_from_js(content.params.get("fit_width"), false);
+        if let Some(src) = content.params.get("src") {
+            if let JsParamValue::Text(s) = src {
+                if let Some(image_data_str) = js_doc.image_data.get(s) {
+                    let p_width = if let Some(width) = js_doc.image_widths.get(s) {
+                        *width
+                    } else {
+                        0.0
+                    };
+                    let p_height = if let Some(height) = js_doc.image_heights.get(s) {
+                        *height
+                    } else {
+                        0.0
+                    };
+                    let image_data = base64::decode(&image_data_str).unwrap();
+                    let image_style = ImageStyle::from_content(&content);
+                    let image = Image::new(image_data, p_width, p_height, fit_width, image_style);
+                    return Some(image);
+                }
+            }
+        }
+        None
     }
 }
 
@@ -246,9 +350,9 @@ impl Content for Image {
 }
 
 pub struct Cell {
-    pub contents: Vec<Box<dyn Content>>,
-    pub span: f32,
-    pub style: CellStyle,
+    contents: Vec<Box<dyn Content>>,
+    span: f32,
+    style: CellStyle,
 }
 
 impl Cell {
@@ -262,10 +366,19 @@ impl Cell {
     pub fn add(&mut self, object: Box<dyn Content>) {
         self.contents.push(object);
     }
+    pub fn get_contents(&self) -> &Vec<Box<dyn Content>> {
+        &self.contents
+    }
+    pub fn get_span(&self) -> f32 {
+        self.span
+    }
+    pub fn get_style(&self) -> &CellStyle {
+        &self.style
+    }
 }
 
 pub struct Row {
-    pub cells: Vec<Cell>,
+    cells: Vec<Cell>,
 }
 
 impl Row {
@@ -275,11 +388,14 @@ impl Row {
     pub fn add_cell(&mut self, cell: Cell) {
         self.cells.push(cell);
     }
+    pub fn get_cells(&self) -> &Vec<Cell> {
+        &self.cells
+    }
 }
 
 pub struct Table {
-    pub rows: Vec<Row>,
-    pub style: TableStyle,
+    rows: Vec<Row>,
+    style: TableStyle,
 }
 
 impl Table {
@@ -291,6 +407,70 @@ impl Table {
     }
     pub fn add_row(&mut self, row: Row) {
         self.rows.push(row);
+    }
+    pub fn get_rows(&self) -> &Vec<Row> {
+        &self.rows
+    }
+    pub fn get_style(&self) -> &TableStyle {
+        &self.style
+    }
+    pub fn from_content(content: &JsContent, js_doc: &JsDocument) -> Option<Table> {
+        let table_style = TableStyle::from_content(content);
+        let mut table = Table::new(table_style);
+        if let Some(rows) = content.params.get("rows") {
+            if let JsParamValue::Children(rows) = rows {
+                for row in rows {
+                    let mut r = Row::new();
+                    if let Some(cells) = row.params.get("cells") {
+                        if let JsParamValue::Children(cells) = cells {
+                            //log(&format!("number of cells: {}", cells.len()));
+                            for cell in cells {
+                                let cell_span = get_number_from_js(cell.params.get("span"), 1.0);
+                                let mut c = Cell::new(cell_span);
+                                if let Some(cell_contents) = cell.params.get("contents") {
+                                    if let JsParamValue::Children(contents) = cell_contents {
+                                        for cell_content in contents {
+                                            match cell_content.obj_type.to_lowercase().as_str() {
+                                                "paragraph" => {
+                                                    let paragraph =
+                                                        Paragraph::from_content(&cell_content);
+                                                    c.add(Box::new(paragraph));
+                                                }
+                                                "image" => {
+                                                    if let Some(image) =
+                                                        Image::from_content(&cell_content, &js_doc)
+                                                    {
+                                                        c.add(Box::new(image));
+                                                    }
+                                                }
+                                                "path" => {
+                                                    if let Some(path) =
+                                                        Path::from_content(&cell_content)
+                                                    {
+                                                        c.add(Box::new(path));
+                                                    }
+                                                }
+                                                _ => (),
+                                            }
+                                        }
+                                    }
+                                }
+                                if let Some(cell_style) = cell.params.get("style") {
+                                    if let JsParamValue::Object(cell_style) = cell_style {
+                                        if let Some(bg_color) = cell_style.get("background_color") {
+                                            c.style.background_color = Color::from_param(bg_color);
+                                        }
+                                    }
+                                }
+                                r.add_cell(c);
+                            }
+                        }
+                    }
+                    table.add_row(r);
+                }
+            }
+        }
+        Some(table)
     }
 }
 
@@ -308,13 +488,13 @@ impl Content for Table {
 }
 
 pub struct Path {
-    pub points: Vec<Point>,
-    pub stroke_color: Option<Color>,
-    pub stroke_width: f32,
-    pub fill_color: Option<Color>,
-    pub width: f32,
-    pub height: f32,
-    pub style: PathStyle,
+    points: Vec<Point>,
+    stroke_color: Option<Color>,
+    stroke_width: f32,
+    fill_color: Option<Color>,
+    width: f32,
+    height: f32,
+    style: PathStyle,
 }
 
 impl Path {
@@ -340,6 +520,61 @@ impl Path {
             height,
             style,
         }
+    }
+    pub fn get_points(&self) -> &Vec<Point> {
+        &self.points
+    }
+    pub fn get_stroke_color(&self) -> Option<Color> {
+        self.stroke_color
+    }
+    pub fn get_stroke_width(&self) -> f32 {
+        self.stroke_width
+    }
+    pub fn get_fill_color(&self) -> Option<Color> {
+        self.fill_color
+    }
+    pub fn get_width(&self) -> f32 {
+        self.width
+    }
+    pub fn get_height(&self) -> f32 {
+        self.height
+    }
+    pub fn get_style(&self) -> &PathStyle {
+        &self.style
+    }
+    pub fn from_content(content: &JsContent) -> Option<Path> {
+        let stroke_color = if let Some(color) = content.params.get("stroke_color") {
+            Color::from_param(color)
+        } else {
+            None
+        };
+        let fill_color = if let Some(color) = content.params.get("fill_color") {
+            Color::from_param(color)
+        } else {
+            None
+        };
+        let stroke_width = get_number_from_js(content.params.get("stroke_width"), 0.0);
+        if let Some(points) = content.params.get("points") {
+            if let JsParamValue::Array(js_points) = points {
+                let mut points: Vec<Point> = Vec::new();
+                for point in js_points {
+                    if let JsParamValue::Array(js_point) = point {
+                        if let JsParamValue::Number(x) = js_point[0] {
+                            if let JsParamValue::Number(y) = js_point[1] {
+                                let p = Point { x, y };
+                                points.push(p);
+                            }
+                        }
+                    }
+                }
+                if points.len() > 1 {
+                    let style = PathStyle::from_content(&content);
+                    let path = Path::new(points, stroke_color, stroke_width, fill_color, style);
+                    return Some(path);
+                }
+            }
+        }
+        None
     }
 }
 

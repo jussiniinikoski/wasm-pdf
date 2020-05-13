@@ -12,8 +12,8 @@ pub enum Tag {
     Bold,
 }
 
-/// TextSpan contains fragment of paragraph text,
-/// that may contain some attributes.
+/// TextSpan contains a fragment of paragraph text,
+/// that may have some attributes/tags.
 #[derive(Debug, Clone)]
 pub struct TextSpan {
     pub text: String,
@@ -21,8 +21,8 @@ pub struct TextSpan {
 }
 
 impl TextSpan {
-    pub fn new(text: String, tag: Tag) -> TextSpan {
-        TextSpan { text, tag }
+    pub fn new(text: &str, tag: Tag) -> TextSpan {
+        TextSpan { text: String::from(text), tag }
     }
     /// Generate all spans for given text.
     /// Combines <a> and <b> tags into one regex to get capture groups.
@@ -41,13 +41,14 @@ impl TextSpan {
                 let end_index = m.end();
                 if start_index > current_index {
                     let text: &str = &p_text[current_index..start_index];
-                    let span = TextSpan::new(String::from(text), Tag::Span);
+                    let span = TextSpan::new(text, Tag::Span);
                     text_parts.push(span);
                 }
                 if let (Some(url), Some(text)) = (capture.name("url"), capture.name("a_text")) {
-                    if !text.as_str().is_empty() {
+                    let text = text.as_str();
+                    if !text.is_empty() {
                         let span = TextSpan::new(
-                            String::from(text.as_str()),
+                            text,
                             Tag::Link {
                                 url: String::from(url.as_str()),
                             },
@@ -55,8 +56,9 @@ impl TextSpan {
                         text_parts.push(span);
                     }
                 } else if let Some(text) = capture.name("b_text") {
-                    if !text.as_str().is_empty() {
-                        let span = TextSpan::new(String::from(text.as_str()), Tag::Bold);
+                    let text = text.as_str();
+                    if !text.is_empty() {
+                        let span = TextSpan::new(text, Tag::Bold);
                         text_parts.push(span);
                     }
                 }
@@ -65,7 +67,7 @@ impl TextSpan {
         }
         if current_index < p_text.len() - 1 {
             let text: &str = &p_text[current_index..];
-            let span = TextSpan::new(String::from(text), Tag::Span);
+            let span = TextSpan::new(text, Tag::Span);
             text_parts.push(span);
         }
         text_parts
@@ -78,7 +80,6 @@ impl TextSpan {
 
     /// Get width of text
     pub fn get_width(&self, font: &'static Font, font_size: f32) -> f32 {
-        let text = format!("{} ", self.text); // add one space
         match self.tag {
             Tag::Bold => {
                 let font_name = font.get_name().to_lowercase();
@@ -88,9 +89,9 @@ impl TextSpan {
                     String::from(&font_name)
                 };
                 let font = get_font(&new_font_name);
-                font.get_width(font_size, &text)
+                font.get_width(font_size, &self.text)
             }
-            _ => font.get_width(font_size, &text),
+            _ => font.get_width(font_size, &self.text),
         }
     }
 
@@ -101,7 +102,6 @@ impl TextSpan {
 
     /// Generates encoded text
     pub fn encode_text(text: &str) -> Vec<u8> {
-        let text = format!("{} ", text); // add one space
         let encoded_text = winansi::encode(&text);
         let mut output: Vec<u8> = Vec::new();
         output.write_all(b"(").unwrap();
@@ -132,8 +132,7 @@ pub fn extract_links(text: &str) -> String {
 mod tests {
     use super::*;
     use crate::pdf::models::Paragraph;
-    use crate::pdf::styles::{HorizontalAlign, ParagraphStyle};
-    use crate::pdf::units::Color;
+    use crate::pdf::styles::{Color, HorizontalAlign, ParagraphStyle};
     use lazy_static;
 
     #[test]
@@ -181,6 +180,6 @@ mod tests {
         let p: Paragraph = Paragraph::new(&sample_text, "helvetica", 12.0, style);
         let wrapped = p.wrap_to_width(300.0);
         println!("{:?}", wrapped);
-        assert_eq!(wrapped.last().unwrap().last().unwrap().text, ". Ends here.");
+        assert_eq!(wrapped.last().unwrap().last().unwrap().text, ". Ends here. ");
     }
 }

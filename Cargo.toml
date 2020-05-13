@@ -1,6 +1,6 @@
 [package]
 name = "wasm-pdf"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Jussi Niinikoski <jussi.niinikoski@perjantai.fi>"]
 description = "Generate PDF files with JavaScript and WebAssembly."
 keywords = ["wasm", "pdf"]
@@ -17,8 +17,8 @@ wasm-pdf-gen = { path = "crates/wasm-pdf-gen"}
 wasm-bindgen = { version = "0.2.62", features = ["serde-serialize"]  }
 console_error_panic_hook = "0.1.6"
 js-sys = "0.3.39"
-serde = { version = "1.0.107", features = ["derive"] }
-serde_derive = "1.0.107"
+serde = { version = "1.0.110", features = ["derive"] }
+serde_derive = "1.0.110"
 
 [dependencies.web-sys]
 version = "0.3.37"

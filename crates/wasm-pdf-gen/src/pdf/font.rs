@@ -3,12 +3,20 @@
 
 use super::encoders::winansi;
 use std::collections::BTreeMap;
+use std::hash::{Hash, Hasher};
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Font {
     name: String,
     widths: BTreeMap<u8, u16>,
     font_ref: String,
+}
+
+impl Hash for Font {
+    // Hash fonts by name
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
 }
 
 impl Font {

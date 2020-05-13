@@ -2,7 +2,7 @@ use super::units::A4;
 use std::collections::HashMap;
 
 /// Parameter values from JSON
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum JsParamValue {
     Null,
@@ -14,7 +14,7 @@ pub enum JsParamValue {
     Array(Vec<JsParamValue>),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct JsContent {
     #[serde(default = "default_obj_type")]
     pub obj_type: String,

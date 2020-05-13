@@ -51,10 +51,10 @@ impl PageTemplate {
 
 #[derive(Debug, Copy, Clone)]
 pub struct Frame {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
 }
 
 impl Frame {
@@ -65,5 +65,8 @@ impl Frame {
             width,
             height,
         }
+    }
+    pub fn get_rect(&self) -> (f32, f32, f32, f32) {
+        (self.x, self.y, self.width, self.height)
     }
 }

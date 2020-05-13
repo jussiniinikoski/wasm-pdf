@@ -6,8 +6,6 @@ use super::encoders;
 use super::font::Font;
 use super::template::PageTemplate;
 
-/// PDFDocument is the main type used when creating an actual document.
-///
 pub struct PDFDocument {
     pages: Vec<PDFPage>,
     page_counter: u16,
@@ -38,6 +36,7 @@ impl PDFDocument {
         self.image_counter += 1;
         self.image_counter
     }
+    /// Build and return PDF bytes
     pub fn save_document(&mut self, tpl: &PageTemplate) -> Result<Vec<u8>, &'static str> {
         let mut pdf = PDFFile::new();
         let font_id = pdf.get_new_object_id();
@@ -81,8 +80,8 @@ impl PDFDocument {
         let pages_id = pdf.get_new_object_id();
         let root_obj = PDFObject::new(&format!("/Type /Catalog /Pages {} 0 R", pages_id), root_id);
         pdf.add_object(&root_obj);
-        let mut kids = Vec::new();
-        kids.write_all(b"[ ").unwrap();
+        let mut kids = String::new();
+        kids += "[ ";
         // get page ids
         for page in &mut self.pages {
             // page images
@@ -91,16 +90,12 @@ impl PDFDocument {
             }
             let page_id = pdf.get_new_object_id();
             page.page_id = page_id;
-            write!(kids, "{} 0 R ", page_id).unwrap();
+            kids += &format!("{} 0 R ", page_id);
         }
-        kids.write_all(b"]").unwrap();
+        kids += "]";
         // write pages array
         let pages_obj = PDFObject::new(
-            &format!(
-                "/Type /Pages /Kids {} /Count {}",
-                str::from_utf8(&kids).unwrap(),
-                self.pages.len()
-            ),
+            &format!("/Type /Pages /Kids {} /Count {}", kids, self.pages.len()),
             pages_id,
         );
         pdf.add_object(&pages_obj);
@@ -138,7 +133,7 @@ impl PDFDocument {
                 write!(output, "~>").unwrap();
                 writeln!(output, "endstream").unwrap();
                 writeln!(output, "endobj").unwrap();
-                pdf.add(&output);
+                pdf.add_bytes(&output);
                 x_objects.push(format!("/{} {} 0 R", image.get_uid(), image.object_id));
             }
             let x_object = if x_objects.is_empty() {
@@ -183,8 +178,7 @@ impl PDFDocument {
         // add page contents here
         for page in &self.pages {
             let content_id = page.content_id;
-            let stream = &page.contents;
-            let stream = encoders::zlib::encode(&stream).unwrap();
+            let stream = encoders::zlib::encode(&page.contents).unwrap();
             let stream = encoders::ascii85::encode(&stream).unwrap();
             let mut output = Vec::new();
             writeln!(
@@ -199,10 +193,10 @@ impl PDFDocument {
             write!(output, "~>").unwrap(); // ascii85 stream end marker
             writeln!(output, "endstream").unwrap();
             writeln!(output, "endobj").unwrap();
-            pdf.add(&output);
+            pdf.add_bytes(&output);
         }
         pdf.add_trailer(root_id);
-        Ok(pdf.output())
+        Ok(pdf.contents)
     }
 }
 
@@ -210,8 +204,8 @@ pub struct PDFPage {
     contents: Vec<u8>,
     page_id: u16,
     content_id: u16,
-    pub images: Vec<PDFImage>,
-    pub link_annotations: Vec<LinkAnnotation>,
+    images: Vec<PDFImage>,
+    link_annotations: Vec<LinkAnnotation>,
 }
 
 impl PDFPage {
@@ -273,7 +267,7 @@ impl PDFFile {
         }
     }
     /// Append bytes to contents and current offset
-    pub fn add(&mut self, bytes: &[u8]) {
+    pub fn add_bytes(&mut self, bytes: &[u8]) {
         self.offsets.push(self.contents.len() as u32);
         self.contents.write_all(bytes).unwrap();
     }
@@ -309,9 +303,6 @@ impl PDFFile {
         writeln!(self.contents, "startxref").unwrap();
         writeln!(self.contents, "{}", xref_start_offset).unwrap();
         writeln!(self.contents, "%%EOF").unwrap();
-    }
-    pub fn output(&self) -> Vec<u8> {
-        self.contents.clone()
     }
 }
 

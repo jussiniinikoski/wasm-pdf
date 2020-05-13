@@ -1,18 +1,17 @@
 use std::io::Write;
 use std::str;
-//use wasm_bindgen::prelude::*;
 
 use super::font::{get_font, Font};
 use super::models::{Cell, Image, Paragraph, Path, Row, Spacer, Stationary, Table};
 use super::objects::{LinkAnnotation, PDFDocument, PDFImage, PDFPage};
-use super::styles::{HorizontalAlign, VerticalAlign};
+use super::styles::{Color, HorizontalAlign, VerticalAlign};
 use super::template::PageTemplate;
-use super::units::{Color, Line, Point, Rect};
+use super::units::{Line, Point, Rect};
 use crate::pdf::text::{Tag, TextSpan};
 
 pub struct Canvas {
     output: Vec<u8>,
-    pub cursor: (f32, f32),
+    cursor: (f32, f32),
     template: PageTemplate,
     doc: PDFDocument,
     images: Vec<PDFImage>,
@@ -21,7 +20,8 @@ pub struct Canvas {
 
 impl Canvas {
     pub fn new(tpl: &PageTemplate) -> Canvas {
-        let top_left = (tpl.get_frame().x, tpl.get_frame().y);
+        let (fx, fy, _, _) = tpl.get_frame().get_rect();
+        let top_left = (fx, fy);
         let doc = PDFDocument::new();
         let output = Vec::new();
         let mut canvas = Canvas {
@@ -35,7 +35,7 @@ impl Canvas {
         canvas.write_preamble();
         canvas
     }
-    pub fn _get_output(&self) -> Vec<u8> {
+    pub fn _get_test_output(&self) -> Vec<u8> {
         self.output.clone()
     }
     /// Save the current graphics state to be restored later by restore_state.
@@ -75,6 +75,7 @@ impl Canvas {
             }
         }
     }
+    /// Draw a single line of text to given position.
     fn draw_text_line(
         &mut self,
         text: &str,
@@ -87,9 +88,7 @@ impl Canvas {
         self.translate(point.x, point.y);
         self.save_state();
         self.set_fill_color(color.r, color.g, color.b);
-        let mut out_text: Vec<u8> = Vec::new();
-        let encoded_text = TextSpan::encode_text(text);
-        out_text.extend(encoded_text);
+        let out_text: Vec<u8> = TextSpan::encode_text(text);
         let mut stream = Vec::new();
         let leading = font_size;
         write!(
@@ -106,23 +105,28 @@ impl Canvas {
         self.restore_state();
         self.restore_state();
     }
+    /// Postscript transforms
     fn transform(&mut self, aa: &str, bb: &str, cc: &str, dd: &str, ee: &str, ff: &str) {
         writeln!(self.output, "{} {} {} {} {} {} cm", aa, bb, cc, dd, ee, ff).unwrap();
     }
-    /// move the origin from the current (0,0) point to the (dx,dy) point
+    /// Moves the origin from the current (0,0) point to the (dx,dy) point
     /// (with respect to the current graphics state).
     pub fn translate(&mut self, dx: f32, dy: f32) {
         self.transform("1", "0", "0", "1", &dx.to_string(), &dy.to_string());
     }
+    /// Sets the fill color
     pub fn set_fill_color(&mut self, r: f32, g: f32, b: f32) {
         writeln!(self.output, "{} {} {} rg", r, g, b).unwrap();
     }
+    /// Sets the stroke color
     pub fn set_stroke_color(&mut self, r: f32, g: f32, b: f32) {
         writeln!(self.output, "{} {} {} RG", r, g, b).unwrap();
     }
+    /// Sets the line width
     pub fn set_line_width(&mut self, width: f32) {
         writeln!(self.output, "{} w", width).unwrap();
     }
+    /// Fills a rect with color
     pub fn fill_rect(&mut self, rect: Rect, color: Color) {
         self.save_state();
         self.set_fill_color(color.r, color.g, color.b);
@@ -134,6 +138,7 @@ impl Canvas {
         .unwrap();
         self.restore_state();
     }
+    /// Draws a line
     pub fn draw_line(&mut self, line: Line) {
         writeln!(
             self.output,
@@ -142,6 +147,7 @@ impl Canvas {
         )
         .unwrap();
     }
+    /// Save page to the document and clear page data.
     pub fn save_page(&mut self) {
         let mut page = PDFPage::new();
         page.set_contents(&self.output);
@@ -152,36 +158,44 @@ impl Canvas {
         self.images = Vec::new();
         self.link_annotations = Vec::new();
         self.write_preamble();
-        let top_left = (self.template.get_frame().x, self.template.get_frame().y);
-        self.cursor = top_left;
+        let (fx, fy, _, _) = self.template.get_frame().get_rect();
+        let top_left = (fx, fy);
+        self.set_cursor(top_left.0, top_left.1);
     }
+    /// Sets cursor position
     pub fn set_cursor(&mut self, x: f32, y: f32) {
         self.cursor = (x, y);
     }
+    /// Draws a Spacer
     pub fn draw_spacer(&mut self, spacer: &Spacer) -> Result<(), &'static str> {
-        self.set_cursor(self.cursor.0 + spacer.width, self.cursor.1 - spacer.height);
+        let (width, height) = spacer.get_dimensions();
+        self.set_cursor(self.cursor.0 + width, self.cursor.1 - height);
         self.save_state();
         self.translate(self.cursor.0, self.cursor.1);
         self.restore_state();
         Ok(())
     }
+    /// Draws a Path
     pub fn draw_path(&mut self, path: &Path, available_width: f32) -> Result<(), &'static str> {
-        let pos_x = match path.style.horizontal_align {
+        let pos_x = match path.get_style().horizontal_align {
             HorizontalAlign::Left => self.cursor.0,
-            HorizontalAlign::Center => self.cursor.0 + (available_width - path.width) / 2.0,
-            _ => self.cursor.0 + available_width - path.width,
+            HorizontalAlign::Center => self.cursor.0 + (available_width - path.get_width()) / 2.0,
+            _ => self.cursor.0 + available_width - path.get_width(),
         };
         self.save_state();
-        self.translate(pos_x, self.cursor.1 - path.height);
-        if let Some(stroke_color) = path.stroke_color {
+        self.translate(pos_x, self.cursor.1 - path.get_height());
+        let stroke_color = path.get_stroke_color();
+        if let Some(stroke_color) = stroke_color {
             self.set_stroke_color(stroke_color.r, stroke_color.g, stroke_color.b);
         }
-        if let Some(fill_color) = path.fill_color {
+        let fill_color = path.get_fill_color();
+        if let Some(fill_color) = fill_color {
             self.set_fill_color(fill_color.r, fill_color.g, fill_color.b);
         }
-        self.set_line_width(path.stroke_width);
+        let stroke_width = path.get_stroke_width();
+        self.set_line_width(stroke_width);
         let mut init_point_drawn = false;
-        for point in &path.points {
+        for point in path.get_points() {
             if !init_point_drawn {
                 writeln!(self.output, "n {} {} m", point.x, point.y).unwrap();
                 init_point_drawn = true;
@@ -190,19 +204,19 @@ impl Canvas {
             }
         }
         writeln!(self.output, "h").unwrap(); // close path
-        if path.fill_color.is_some() && path.stroke_color.is_some() && path.stroke_width > 0.0 {
+        if fill_color.is_some() && stroke_color.is_some() && stroke_width > 0.0 {
             writeln!(self.output, "B").unwrap();
-        } else if path.fill_color.is_some() {
+        } else if fill_color.is_some() {
             writeln!(self.output, "f").unwrap();
-        } else if path.stroke_color.is_some() && path.stroke_width > 0.0 {
+        } else if stroke_color.is_some() && stroke_width > 0.0 {
             writeln!(self.output, "S").unwrap();
         }
         self.restore_state();
-        self.set_cursor(self.cursor.0, self.cursor.1 - path.height);
+        self.set_cursor(self.cursor.0, self.cursor.1 - path.get_height());
         Ok(())
     }
     fn draw_lines(&mut self, lines: Vec<Line>, table: &Table) {
-        let style = &table.style;
+        let style = table.get_style();
         self.save_state();
         self.set_stroke_color(style.grid_color.r, style.grid_color.g, style.grid_color.b);
         self.set_line_width(style.grid_width);
@@ -219,18 +233,20 @@ impl Canvas {
         is_first_row: bool,
         new_page: bool,
     ) -> Result<(), &'static str> {
-        let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
-        let horizontal_padding = table.style.padding_left + table.style.padding_right;
-        let vertical_padding = table.style.padding_bottom + table.style.padding_top;
+        let table_style = table.get_style();
+        let (_, fy, fwidth, fheight) = self.template.get_frame().get_rect();
+        let frame_bottom = fy - fheight;
+        let horizontal_padding = table_style.padding_left + table_style.padding_right;
+        let vertical_padding = table_style.padding_bottom + table_style.padding_top;
         let available_height = self.cursor.1 - frame_bottom - vertical_padding;
         let row_cursor = self.cursor;
         let mut row_height = 0.0;
-        let frame_width = self.template.get_frame().width;
+        let frame_width = fwidth;
         // Calculate row's total columns based on cell spans (default span is 1).
         let columns = row
-            .cells
+            .get_cells()
             .iter()
-            .map(|c: &Cell| c.span)
+            .map(|c: &Cell| c.get_span())
             .fold(0.0, |sum, span| sum + span);
         let span_width = frame_width / columns as f32;
         // First pass: check height of whole row to see if it fits the current page
@@ -243,11 +259,11 @@ impl Canvas {
         let mut cell_content_heights: Vec<f32> = Vec::new();
         // Set the first cell's location to the beginning of row
         let mut rect_cursor = row_cursor;
-        for cell in &row.cells {
-            let cell_width = cell.span * span_width;
+        for cell in row.get_cells() {
+            let cell_width = cell.get_span() * span_width;
             let mut cell_content_width = 0.0;
             let mut cell_height = 0.0;
-            for content in &cell.contents {
+            for content in cell.get_contents() {
                 let (actual_width, actual_height) =
                     content.wrap((cell_width - horizontal_padding, available_height));
                 if actual_height > available_height {
@@ -306,28 +322,30 @@ impl Canvas {
         }
         // Set the first cell's location to the beginning of row
         let mut cell_cursor = (row_cursor.0, row_cursor.1);
-        for (index, cell) in row.cells.iter().enumerate() {
-            let cell_width = cell.span * span_width;
+        for (index, cell) in row.get_cells().iter().enumerate() {
+            let cell_width = cell.get_span() * span_width;
             // Background color fill
-            if let Some(bg_color) = cell.style.background_color {
+            if let Some(bg_color) = cell.get_style().background_color {
                 let rect = cell_rects[index];
                 self.fill_rect(rect, bg_color);
             }
             // Check for vertical alignment
             let cell_content_height = cell_content_heights[index];
-            let offset_top = match table.style.vertical_align {
+            let offset_top = match table_style.vertical_align {
                 VerticalAlign::Middle => {
                     (row_height + vertical_padding - cell_content_height) / 2.0
                 }
                 VerticalAlign::Bottom => {
-                    row_height + vertical_padding - cell_content_height - table.style.padding_bottom
+                    row_height + vertical_padding - cell_content_height - table_style.padding_bottom
                 }
-                _ => table.style.padding_top,
+                _ => table_style.padding_top,
             };
             // Set vertical offset
-            self.cursor.1 = cell_cursor.1 - offset_top;
-            self.cursor.0 = cell_cursor.0 + table.style.padding_left;
-            for content in &cell.contents {
+            self.set_cursor(
+                cell_cursor.0 + table_style.padding_left,
+                cell_cursor.1 - offset_top,
+            );
+            for content in cell.get_contents() {
                 content.draw(self, cell_width - horizontal_padding)?
             }
             cell_cursor.0 += cell_width;
@@ -335,22 +353,24 @@ impl Canvas {
         }
         self.set_cursor(row_cursor.0, row_cursor.1 - row_height - vertical_padding);
         // Draw grid lines if so configured
-        if table.style.grid_visible {
+        if table_style.grid_visible {
             self.draw_lines(grid_lines, table);
         }
         Ok(())
     }
+    /// Draws a Table
     pub fn draw_table(&mut self, table: &Table) -> Result<(), &'static str> {
         let table_cursor = self.cursor;
         // Render rows individually (may render on separate pages).
         let mut is_first_row = true;
-        for row in &table.rows {
+        for row in table.get_rows() {
             self.draw_table_row(table, row, table_cursor, is_first_row, false)?;
             is_first_row = false;
         }
         self.set_cursor(table_cursor.0, self.cursor.1);
         Ok(())
     }
+    /// Draws an Image
     pub fn draw_image(
         &mut self,
         image: &Image,
@@ -359,27 +379,29 @@ impl Canvas {
     ) -> Result<(), &'static str> {
         // add image to canvas images first, then add transform to output
         // check first if image fits to this page..
-        let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
-        let width = if image.fit_width {
+        let (_, fy, _, fheight) = self.template.get_frame().get_rect();
+        let frame_bottom = fy - fheight;
+        let (img_width, img_height) = image.get_dimensions();
+        let width = if image.fits_width() {
             available_width
         } else {
-            image.width
+            img_width
         };
-        let height = if image.fit_width {
-            available_width / image.width * image.height
+        let height = if image.fits_width() {
+            available_width / img_width * img_height
         } else {
-            image.height
+            img_height
         };
-        let pos_x = if !image.fit_width {
-            match image.style.horizontal_align {
+        let pos_x = if !image.fits_width() {
+            match image.get_style().horizontal_align {
                 HorizontalAlign::Left => self.cursor.0,
-                HorizontalAlign::Center => self.cursor.0 + (available_width - image.width) / 2.0,
-                _ => self.cursor.0 + available_width - image.width,
+                HorizontalAlign::Center => self.cursor.0 + (available_width - width) / 2.0,
+                _ => self.cursor.0 + available_width - width,
             }
         } else {
             self.cursor.0
         };
-        if self.cursor.1 - image.height < frame_bottom {
+        if self.cursor.1 - height < frame_bottom {
             if new_page {
                 return Err("Image is too large to fit on page.");
             }
@@ -388,7 +410,7 @@ impl Canvas {
         }
 
         let image_id = self.doc.get_image_id();
-        let pdf_image = PDFImage::new(image_id, image.width, image.height, &image.data);
+        let pdf_image = PDFImage::new(image_id, img_width, img_height, &image.get_data());
         let image_name = pdf_image.get_uid();
         self.images.push(pdf_image);
         self.set_cursor(self.cursor.0, self.cursor.1 - height);
@@ -401,45 +423,47 @@ impl Canvas {
         self.restore_state();
         Ok(())
     }
+    /// Draws Paragraph text or wrapped TextSpans
     pub fn draw_text(
         &mut self,
         paragraph: &Paragraph,
         wrapped: &[Vec<TextSpan>],
         available_width: f32,
     ) -> Result<(), &'static str> {
-        self.doc.add_font(paragraph.font); // font gets added only if it doesn't exist yet
-        let leading = paragraph.style.leading;
-        let padding_top = paragraph.style.padding.0;
-        let padding_left = paragraph.style.padding.1;
-        let padding_bottom = paragraph.style.padding.2;
-        self.cursor = (self.cursor.0, self.cursor.1 - leading - padding_top);
+        let font = paragraph.get_font();
+        let font_size = paragraph.get_font_size();
+        self.doc.add_font(font); // font gets added only if it doesn't exist yet
+        let style = paragraph.get_style();
+        let leading = style.leading;
+        let padding_top = style.padding.0;
+        let padding_left = style.padding.1;
+        let padding_bottom = style.padding.2;
+        self.set_cursor(self.cursor.0, self.cursor.1 - leading - padding_top);
         self.save_state();
         self.translate(self.cursor.0 + padding_left, self.cursor.1);
         self.save_state();
-        let color = paragraph.style.color;
-        let link_color = paragraph.style.link_color;
+        let color = style.color;
+        let link_color = style.link_color;
         self.set_fill_color(color.r, color.g, color.b);
-        let mut out_text: Vec<u8> = Vec::new();
-        if let Some(bullet) = &paragraph.style.bullet {
-            let mut bullet_text: Vec<u8> = Vec::new();
-            write!(bullet_text, "-{} 0 Td ", paragraph.style.bullet_indent).unwrap();
-            bullet_text.extend(TextSpan::encode_text(&bullet));
+        if let Some(bullet) = &style.bullet {
             let mut stream = Vec::new();
             write!(
                 stream,
                 "BT 1 0 0 1 0 2 Tm /{} {} Tf {} TL ",
-                paragraph.font.get_ref(),
-                paragraph.font_size,
+                font.get_ref(),
+                font_size,
                 leading
             )
             .unwrap();
-            stream.write_all(&bullet_text).unwrap();
+            write!(stream, "-{} 0 Td ", style.bullet_indent).unwrap();
+            stream.write_all(&TextSpan::encode_text(&bullet)).unwrap();
             writeln!(stream, " ET").unwrap();
             self.output.write_all(&stream).unwrap();
         }
-
+        let mut out_text: Vec<u8> = Vec::new();
         let mut next_page_lines: Vec<Vec<TextSpan>> = Vec::new();
-        let frame_bottom = self.template.get_frame().y - self.template.get_frame().height;
+        let (_, fy, _, fheight) = self.template.get_frame().get_rect();
+        let frame_bottom = fy - fheight;
         let mut break_page = false;
         for line in wrapped {
             let mut line_width: f32 = 0.0;
@@ -449,17 +473,17 @@ impl Canvas {
                 break_page = true;
                 next_page_lines.push(line.clone());
             } else {
-                match paragraph.style.align {
+                match style.align {
                     HorizontalAlign::Center => {
                         for span in line {
-                            line_width += span.get_width(paragraph.font, paragraph.font_size);
+                            line_width += span.get_width(font, font_size);
                         }
                         width_offset = (available_width - line_width) / 2.0;
                         write!(out_text, " {} 0 Td ", width_offset).unwrap();
                     }
                     HorizontalAlign::Right => {
                         for span in line {
-                            line_width += span.get_width(paragraph.font, paragraph.font_size);
+                            line_width += span.get_width(font, font_size);
                         }
                         width_offset = available_width - line_width;
                         write!(out_text, " {} 0 Td ", width_offset).unwrap();
@@ -472,7 +496,7 @@ impl Canvas {
                 let mut text_color_changed = false;
                 let mut font_weight_is_bold = false;
                 for span in line {
-                    let span_width = span.get_width(paragraph.font, paragraph.font_size);
+                    let span_width = span.get_width(font, font_size);
                     match &span.tag {
                         Tag::Link { url } => {
                             let annot =
@@ -485,16 +509,15 @@ impl Canvas {
                             text_color_changed = true;
                         }
                         Tag::Bold => {
-                            let font_name = paragraph.font.get_name().to_lowercase();
+                            let font_name = font.get_name().to_lowercase();
                             let new_font_name = if !font_name.ends_with("bold") {
                                 format!("{}-bold", font_name)
                             } else {
                                 String::from(&font_name)
                             };
-                            let font = get_font(&new_font_name);
+                            let bold_font = get_font(&new_font_name);
                             out_text.extend(
-                                format!(" /{} {} Tf ", font.get_ref(), paragraph.font_size)
-                                    .as_bytes(),
+                                format!(" /{} {} Tf ", bold_font.get_ref(), font_size).as_bytes(),
                             );
                             font_weight_is_bold = true;
                         }
@@ -509,12 +532,7 @@ impl Canvas {
                             // Change back to normal font.
                             if font_weight_is_bold {
                                 out_text.extend(
-                                    format!(
-                                        " /{} {} Tf ",
-                                        paragraph.font.get_ref(),
-                                        paragraph.font_size
-                                    )
-                                    .as_bytes(),
+                                    format!(" /{} {} Tf ", font.get_ref(), font_size).as_bytes(),
                                 );
                                 font_weight_is_bold = false;
                             }
@@ -528,17 +546,17 @@ impl Canvas {
                 if width_offset != 0.0 {
                     write!(out_text, " {} 0 Td ", -width_offset).unwrap();
                 }
-                self.cursor = (self.cursor.0, self.cursor.1 - leading);
+                self.set_cursor(self.cursor.0, self.cursor.1 - leading);
             }
         }
         // move up one leading to count for one row of text
-        self.cursor = (self.cursor.0, self.cursor.1 + leading - padding_bottom);
+        self.set_cursor(self.cursor.0, self.cursor.1 + leading - padding_bottom);
         let mut stream = Vec::new();
         write!(
             stream,
             "BT 1 0 0 1 0 2 Tm /{} {} Tf {} TL ",
-            paragraph.font.get_ref(),
-            paragraph.font_size,
+            font.get_ref(),
+            font_size,
             leading
         )
         .unwrap();
@@ -547,12 +565,14 @@ impl Canvas {
         self.output.write_all(&stream).unwrap();
         self.restore_state();
         self.restore_state();
+        // save and start drawing to a new page
         if break_page {
             self.save_page();
             return self.draw_text(paragraph, &next_page_lines, available_width);
         }
         Ok(())
     }
+    /// Build and return PDF bytes
     pub fn build(&mut self) -> Result<Vec<u8>, &'static str> {
         self.save_page();
         self.doc.save_document(&self.template)
@@ -569,6 +589,6 @@ mod tests {
         let tpl = PageTemplate::new(A4, 50.0, 50.0, 50.0, 50.0);
         let canvas = Canvas::new(&tpl);
         let output = "1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET\n".as_bytes();
-        assert_eq!(canvas._get_output(), output);
+        assert_eq!(canvas._get_test_output(), output);
     }
 }
