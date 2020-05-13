@@ -80,10 +80,11 @@ impl Canvas {
         &mut self,
         text: &str,
         font_size: f32,
-        font: &Font,
+        font: &'static Font,
         point: Point,
         color: Color,
     ) {
+        self.doc.add_font(font); // font gets added only if it doesn't exist yet
         self.save_state();
         self.translate(point.x, point.y);
         self.save_state();
@@ -393,7 +394,7 @@ impl Canvas {
             img_height
         };
         let pos_x = if !image.fits_width() {
-            match image.get_style().horizontal_align {
+            match image.get_style().get_horizontal_align() {
                 HorizontalAlign::Left => self.cursor.0,
                 HorizontalAlign::Center => self.cursor.0 + (available_width - width) / 2.0,
                 _ => self.cursor.0 + available_width - width,
