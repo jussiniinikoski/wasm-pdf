@@ -153,7 +153,8 @@ impl Paragraph {
         let mut line_spans: Vec<TextSpan> = Vec::new();
         // line of text
         let mut line = String::new();
-        for span in self.get_spans() {
+        let num_spans = self.get_spans().len();
+        for (i, span) in self.get_spans().iter().enumerate() {
             let words: Vec<&str> = span.text.split_whitespace().collect();
             let mut next_word: Option<String> = None;
             let mut span_text = String::new();
@@ -186,6 +187,10 @@ impl Paragraph {
             if !span_text.is_empty() || next_word != None {
                 if let Some(_next_word) = next_word {
                     span_text += &_next_word;
+                }
+                if i == num_spans - 1 {
+                    // Remove trailing space from last span
+                    span_text = span_text.trim_end().to_owned();
                 }
                 let text_span = TextSpan::new(&span_text, span.tag.clone());
                 line_spans.push(text_span);

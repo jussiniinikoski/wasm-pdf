@@ -183,9 +183,6 @@ mod tests {
         let p: Paragraph = Paragraph::new(&sample_text, "helvetica", 12.0, style);
         let wrapped = p.wrap_to_width(300.0);
         println!("{:?}", wrapped);
-        assert_eq!(
-            wrapped.last().unwrap().last().unwrap().text,
-            ". Ends here. "
-        );
+        assert_eq!(wrapped.last().unwrap().last().unwrap().text, ". Ends here.");
     }
 }
