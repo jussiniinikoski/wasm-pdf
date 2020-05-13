@@ -17,8 +17,6 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
 
 ## Features
 
-**NOTE: this project is work in progress so some features may be broken.**
-
 * PDF contents are described as a JavaScript object and that gets passed to WASM-module, which generates the output
 * Customizable output handler (e.g. load blob URL to a link or directly to window)
 * Currently supported elements include:
@@ -31,6 +29,7 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
   * Custom template size (defaults to A4 portrait with 50 px margins)
   * Page numbers and stationary text can be included in template
   * Inline links and bold text (a and b tags) inside paragraph text
+* [The generator crate](./crates/wasm-pdf-gen/) can also be used standalone
 
 ## Example input (JSON)
 
