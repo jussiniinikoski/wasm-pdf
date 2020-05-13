@@ -47,6 +47,15 @@ fn read_file(path: &Path, bytes: &mut Vec<u8>) -> Result<(f32, f32), String> {
     Err("Invalid jpg format.".to_string())
 }
 
+fn add_image_data_to_js(src: &str, base_path: &Path) -> Result<(String, f32, f32), String> {
+    let image_path = base_path.join(&src);
+    let mut img_buffer: Vec<u8> = Vec::new();
+    let (width, height) = read_file(&image_path, &mut img_buffer)
+        .map_err(|err| format!("Error reading file: {}", err))?;
+    let image_data = base64::encode(&img_buffer);
+    Ok((image_data, width, height))
+}
+
 /// Process JSON and save PDF.
 pub fn process(input_fname: &str, output_fname: &str) -> Result<(), String> {
     let input_file =
@@ -55,27 +64,78 @@ pub fn process(input_fname: &str, output_fname: &str) -> Result<(), String> {
     let base_path = Path::new(input_fname).parent().unwrap();
     let mut js_doc: JsDocument =
         serde_json::from_reader(reader).expect("Error parsing JSON document.");
-
-    for c in js_doc
-        .contents
-        .iter()
-        .filter(|c| c.obj_type.as_str() == "Image")
-    {
-        if let Some(src) = c.params.get("src") {
-            if let JsParamValue::Text(src) = src {
-                if !js_doc.image_data.contains_key(src) {
-                    let image_path = base_path.join(&src);
-                    let mut img_buffer: Vec<u8> = Vec::new();
-                    let (width, height) = read_file(&image_path, &mut img_buffer)
-                        .map_err(|err| format!("Error reading file: {}", err))?;
-                    let image_data = base64::encode(&img_buffer);
-                    js_doc.image_data.insert(src.to_owned(), image_data);
-                    js_doc.image_heights.insert(src.to_owned(), height as f32);
-                    js_doc.image_widths.insert(src.to_owned(), width as f32);
+    for content in &js_doc.contents {
+        match content.obj_type.to_lowercase().as_str() {
+            "table" => {
+                if let Some(rows) = content.params.get("rows") {
+                    if let JsParamValue::Children(rows) = rows {
+                        for row in rows {
+                            if let Some(cells) = row.params.get("cells") {
+                                if let JsParamValue::Children(cells) = cells {
+                                    for cell in cells {
+                                        if let Some(cell_contents) = cell.params.get("contents") {
+                                            if let JsParamValue::Children(contents) = cell_contents
+                                            {
+                                                for cell_content in contents {
+                                                    if let "image" = cell_content
+                                                        .obj_type
+                                                        .to_lowercase()
+                                                        .as_str()
+                                                    {
+                                                        if let Some(src) =
+                                                            cell_content.params.get("src")
+                                                        {
+                                                            if let JsParamValue::Text(src) = src {
+                                                                if !js_doc
+                                                                    .image_data
+                                                                    .contains_key(src)
+                                                                {
+                                                                    let (img_data, width, height) =
+                                                                        add_image_data_to_js(
+                                                                            src, base_path,
+                                                                        )?;
+                                                                    js_doc.image_data.insert(
+                                                                        src.to_owned(),
+                                                                        img_data,
+                                                                    );
+                                                                    js_doc.image_heights.insert(
+                                                                        src.to_owned(),
+                                                                        height as f32,
+                                                                    );
+                                                                    js_doc.image_widths.insert(
+                                                                        src.to_owned(),
+                                                                        width as f32,
+                                                                    );
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+            "image" => {
+                if let Some(src) = content.params.get("src") {
+                    if let JsParamValue::Text(src) = src {
+                        if !js_doc.image_data.contains_key(src) {
+                            let (img_data, width, height) = add_image_data_to_js(src, base_path)?;
+                            js_doc.image_data.insert(src.to_owned(), img_data);
+                            js_doc.image_heights.insert(src.to_owned(), height as f32);
+                            js_doc.image_widths.insert(src.to_owned(), width as f32);
+                        }
+                    }
+                }
+            }
+            _ => (),
         }
     }
+
     let bytes = match create(&js_doc) {
         Ok(b) => b,
         Err(s) => s.into(),
