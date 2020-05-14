@@ -142,7 +142,7 @@ impl TableStyle {
 
 #[derive(Debug, Clone, Copy)]
 pub struct ImageStyle {
-    horizontal_align: HorizontalAlign,
+    pub horizontal_align: HorizontalAlign,
 }
 
 impl ImageStyle {
@@ -165,9 +165,6 @@ impl ImageStyle {
             }
         }
         image_style
-    }
-    pub fn get_horizontal_align(&self) -> HorizontalAlign {
-        self.horizontal_align
     }
 }
 

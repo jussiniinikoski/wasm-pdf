@@ -394,7 +394,7 @@ impl Canvas {
             img_height
         };
         let pos_x = if !image.fits_width() {
-            match image.get_style().get_horizontal_align() {
+            match image.get_style().horizontal_align {
                 HorizontalAlign::Left => self.cursor.0,
                 HorizontalAlign::Center => self.cursor.0 + (available_width - width) / 2.0,
                 _ => self.cursor.0 + available_width - width,
