@@ -68,7 +68,7 @@ impl TextSpan {
                 current_index = end_index;
             }
         }
-        if current_index < p_text.len() - 1 {
+        if current_index < p_text.len() {
             let text: &str = &p_text[current_index..];
             let span = TextSpan::new(text, Tag::Span);
             text_parts.push(span);
@@ -135,7 +135,7 @@ pub fn extract_links(text: &str) -> String {
 mod tests {
     use super::*;
     use crate::pdf::models::Paragraph;
-    use crate::pdf::styles::{Color, HorizontalAlign, ParagraphStyle};
+    use crate::pdf::styles::{HorizontalAlign, ParagraphStyle};
     use lazy_static;
 
     #[test]
@@ -169,17 +169,8 @@ mod tests {
     fn test_wrap_to_width() {
         let sample_text = "<a href='https://www.microsoft.com'>Microsoft Corporation</a>. Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
         <a href='https://www.google.com'>A Link to Google</a>. Aliquam <b>maximus</b> tincidunt nisl. <a href='https://www.yaloo.com'>A Link to Yahoo</a>. Ends here.";
-        let color = Color::new(0.0, 0.0, 0.0);
-        let link_color = Color::new(0.9, 0.4, 0.4);
-        let style: ParagraphStyle = ParagraphStyle::new(
-            12.0,
-            HorizontalAlign::Left,
-            None,
-            0.0,
-            (0.0, 0.0, 0.0, 0.0),
-            color,
-            link_color,
-        );
+        let style: ParagraphStyle =
+            ParagraphStyle::new(12.0, HorizontalAlign::Left, (0.0, 0.0, 0.0, 0.0));
         let p: Paragraph = Paragraph::new(&sample_text, "helvetica", 12.0, style);
         let wrapped = p.wrap_to_width(300.0);
         println!("{:?}", wrapped);

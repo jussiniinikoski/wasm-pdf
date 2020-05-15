@@ -145,6 +145,11 @@ impl Paragraph {
     /// Generate wrapped text spans, a line may contain multiple spans
     /// and a span may split to next line. This is NOT optimal, but it works..
     pub fn wrap_to_width(&self, available_width: f32) -> Vec<Vec<TextSpan>> {
+        let available_width = if !self.style.wrap {
+            f32::MAX
+        } else {
+            available_width
+        };
         let font = self.font;
         let size = self.font_size;
         // contain lines of lines of spans
@@ -203,6 +208,10 @@ impl Paragraph {
     }
 
     pub fn wrapped_size(&self, wrapped: &[Vec<TextSpan>]) -> (f32, f32) {
+        let vertical_padding = self.style.padding.0 + self.style.padding.2;
+        if !self.style.wrap {
+            return (f32::MAX, self.style.leading + vertical_padding);
+        }
         let mut width: f32 = 0.0;
         for line in wrapped {
             let mut max_line: f32 = 0.0;
@@ -213,7 +222,6 @@ impl Paragraph {
                 width = max_line;
             }
         }
-        let vertical_padding = self.style.padding.0 + self.style.padding.2;
         let height = self.style.leading * wrapped.len() as f32 + vertical_padding;
         (width, height)
     }

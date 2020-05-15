@@ -97,11 +97,11 @@ pub fn get_number_from_js(value: Option<&JsParamValue>, default: f32) -> f32 {
 pub fn get_text_from_js(value: Option<&JsParamValue>, default: &str) -> String {
     if let Some(value) = value {
         match value {
-            JsParamValue::Text(t) => t.clone(),
-            _ => String::from(default),
+            JsParamValue::Text(t) => t.to_owned(),
+            _ => default.to_owned(),
         }
     } else {
-        String::from(default)
+        default.to_owned()
     }
 }
 

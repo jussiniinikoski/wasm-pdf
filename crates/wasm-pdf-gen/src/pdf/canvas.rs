@@ -321,6 +321,10 @@ impl Canvas {
             let right_line = Line::new(r.x + r.w, r.y, r.x + r.w, r.y - r.h);
             grid_lines.push(right_line);
         }
+        // Draw grid lines if so configured
+        if table_style.grid_visible {
+            self.draw_lines(grid_lines, table);
+        }
         // Set the first cell's location to the beginning of row
         let mut cell_cursor = (row_cursor.0, row_cursor.1);
         for (index, cell) in row.get_cells().iter().enumerate() {
@@ -353,10 +357,6 @@ impl Canvas {
             self.set_cursor(cell_cursor.0, cell_cursor.1);
         }
         self.set_cursor(row_cursor.0, row_cursor.1 - row_height - vertical_padding);
-        // Draw grid lines if so configured
-        if table_style.grid_visible {
-            self.draw_lines(grid_lines, table);
-        }
         Ok(())
     }
     /// Draws a Table

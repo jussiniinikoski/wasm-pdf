@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use super::json::{get_number_from_js, JsContent, JsParamValue};
+use super::json::{get_bool_from_js, get_number_from_js, JsContent, JsParamValue};
 
 #[derive(Debug, Clone, Copy)]
 pub enum VerticalAlign {
@@ -262,6 +262,7 @@ pub struct ParagraphStyle {
     pub bullet: Option<String>,
     pub bullet_indent: f32,
     pub padding: (f32, f32, f32, f32),
+    pub wrap: bool,
     pub color: Color,
     pub link_color: Color,
 }
@@ -270,20 +271,17 @@ impl ParagraphStyle {
     pub fn new(
         leading: f32,
         align: HorizontalAlign,
-        bullet: Option<String>,
-        bullet_indent: f32,
         padding: (f32, f32, f32, f32),
-        color: Color,
-        link_color: Color,
     ) -> ParagraphStyle {
         ParagraphStyle {
             leading,
             align,
-            bullet,
-            bullet_indent,
+            bullet: None,
+            bullet_indent: 0.0,
             padding,
-            color,
-            link_color,
+            wrap: true,
+            color: Color::new(0.0, 0.0, 0.0),
+            link_color: Color::new(1.0, 0.0, 0.0),
         }
     }
     pub fn from_content(content: &JsContent, p_font_size: f32) -> ParagraphStyle {
@@ -317,12 +315,14 @@ impl ParagraphStyle {
         } else {
             Color::new(0.0, 0.0, 0.0)
         };
+        let wrap = get_bool_from_js(content.params.get("wrap"), true);
         ParagraphStyle {
             leading: p_leading,
             align: p_align,
             bullet: p_bullet,
             bullet_indent: p_bullet_indent,
             padding: p_padding,
+            wrap,
             color: p_color,
             link_color,
         }
@@ -352,6 +352,29 @@ impl ParagraphStyle {
                 if let Some(right) = padding.get("right") {
                     if let JsParamValue::Number(right) = right {
                         padding_right = *right;
+                    }
+                }
+            } else if let JsParamValue::Array(padding_arr) = padding {
+                // Also allow padding to be in [top, left, bottom, right] format.
+                if padding_arr.len() == 4 {
+                    for (index, p) in padding_arr.iter().enumerate() {
+                        if let JsParamValue::Number(p) = p {
+                            match index {
+                                0 => {
+                                    padding_top = *p;
+                                }
+                                1 => {
+                                    padding_left = *p;
+                                }
+                                2 => {
+                                    padding_bottom = *p;
+                                }
+                                3 => {
+                                    padding_right = *p;
+                                }
+                                _ => (),
+                            }
+                        }
                     }
                 }
             }
