@@ -5,19 +5,13 @@
 
 Idea here is to push all the work involved in creating a PDF to the browser side, instead of using precious server resources.
 
-## Demo
+## Demos
 
-Example that generates a sample PDF document from JSON file. Title in PDF is changed dynamically (in JavaScript) to show current date. **Note:** this example routes directly to the PDF data blob, so 2 backsteps are needed to return to this page.
+[Example that generates a sample PDF document from JSON file.](https://jussiniinikoski.github.io/wasm-pdf-demo/) Title in PDF is changed dynamically (in JavaScript) to show current date. **Note:** this example routes directly to the PDF data blob, so 2 backsteps are needed to return to this page.
 
-**[View Example 1](https://jussiniinikoski.github.io/wasm-pdf-demo/)**
+[Another example that generates 400 paragraphs of Lorem Ipsum](https://jussiniinikoski.github.io/wasm-pdf-demo/example2.html) and shows a download link when document has been generated (which is instantly 🙂). Also shows page numbers.
 
-Another example that generates 400 paragraphs of Lorem Ipsum and shows a download link when document has been generated (which is instantly 🙂). Also shows page numbers.
-
-**[View Example 2](https://jussiniinikoski.github.io/wasm-pdf-demo/example2.html)**
-
-This example creates a task calendar.
-
-**[View Example 3](https://jussiniinikoski.github.io/wasm-pdf-demo/example3.html)**
+[This example creates a task calendar.](https://jussiniinikoski.github.io/wasm-pdf-demo/example3.html)
 
 ## Features
 
