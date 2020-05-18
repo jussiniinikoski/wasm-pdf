@@ -15,6 +15,10 @@ Another example that generates 400 paragraphs of Lorem Ipsum and shows a downloa
 
 **[View Example 2](https://jussiniinikoski.github.io/wasm-pdf-demo/example2.html)**
 
+This example creates a task calendar.
+
+**[View Example 3](https://jussiniinikoski.github.io/wasm-pdf-demo/example3.html)**
+
 ## Features
 
 * PDF contents are described as a JavaScript object and that gets passed to WASM-module, which generates the output
