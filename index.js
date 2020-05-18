@@ -63,7 +63,7 @@ const parseJsDoc = (obj) => {
         if (obj[k] && typeof obj[k] === 'object') {
             results = results.concat(parseJsDoc(obj[k]));
         } else {
-            if (k === "obj_type" && obj[k] === "Image") {
+            if (k === "obj_type" && obj[k].toLowerCase() === "image") {
                 if (obj["params"] && obj["params"]["src"]) {
                     results.push(obj.params.src);
                 }
