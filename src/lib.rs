@@ -19,7 +19,7 @@ extern "C" {
 pub fn run(json: &JsValue) -> Result<(), JsValue> {
     // output panics to console.error
     console_error_panic_hook::set_once();
-    let js_doc = get_js_doc(&json).unwrap();
+    let js_doc = get_js_doc(&json)?;
     let bytes = match create(&js_doc) {
         Ok(b) => b,
         Err(s) => return Err(JsValue::from_str(s)),
