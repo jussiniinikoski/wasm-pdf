@@ -14,20 +14,20 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wasm-pdf-gen = { path = "crates/wasm-pdf-gen"}
-wasm-bindgen = { version = "0.2.62", features = ["serde-serialize"]  }
+wasm-bindgen = { version = "0.2.69", features = ["serde-serialize"]  }
 console_error_panic_hook = "0.1.6"
-js-sys = "0.3.39"
-serde = { version = "1.0.110", features = ["derive"] }
-serde_derive = "1.0.110"
+js-sys = "0.3.46"
+serde = { version = "1.0.117", features = ["derive"] }
+serde_derive = "1.0.117"
 
 [dependencies.web-sys]
-version = "0.3.37"
+version = "0.3.46"
 features = [
   'Window',
 ]
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.12"
+wasm-bindgen-test = "0.3.19"
 
 [workspace]
 members = [
