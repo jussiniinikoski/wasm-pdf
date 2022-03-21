@@ -17,8 +17,8 @@ wasm-pdf-gen = { path = "crates/wasm-pdf-gen"}
 wasm-bindgen = { version = "0.2.79", features = ["serde-serialize"]  }
 console_error_panic_hook = "0.1.7"
 js-sys = "0.3.56"
-serde = { version = "1.0.136", features = ["derive"] }
-serde_derive = "1.0.136"
+serde = { version = "1.0", features = ["derive"] }
+serde_derive = "1.0"
 
 [dependencies.web-sys]
 version = "0.3.56"
