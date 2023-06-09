@@ -7,41 +7,9 @@
 </head>
 
 <body>
-    <p>
-        One moment, creating PDF...
-    </p>
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            fetch("./examples/text-example.json")
-                .then(response => {
-                    return response.json();
-                })
-                .then(doc => {
-                    // Change the title to show date (now)
-                    let date = new Date().toLocaleString();
-                    let title = doc.contents[0].params;
-                    title.text += " (created: " + date + ")";
-                    createPDF(doc);
-                });
-        });
-
-        let pdfFileBlobURL = null;
-        let generatePDF = (data) => {
-            const blob = new Blob([data], {
-                type: 'application/pdf'
-            });
-            if (pdfFileBlobURL !== null) {
-                URL.revokeObjectURL(pdfFileBlobURL);
-            }
-            pdfFileBlobURL = URL.createObjectURL(blob);
-            // for debugging purposes, open another window
-            //window.open(pdfFileBlobURL, "_blank");
-            window.location.href = pdfFileBlobURL;
-        }
-
-        let jsonOut = (data) => {
-            console.log(JSON.stringify(data));
-        };
-    </script>
-</body>
+<p>
+    <span id="message">One moment, creating PDF...</span>
+    <a href="javascript:void(0)" download="lorem-ipsum.pdf" style="display: none" id="download-link">Download PDF</a>
+</p>
+<script type="text/javascript" src="index.js"></script></body>
 </html>

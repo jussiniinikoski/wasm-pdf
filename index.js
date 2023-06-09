@@ -1,32 +1,58 @@
-const wasm_pdf = import('./pkg');
+const wasm_pdf = import("./pkg");
 
 const createPDF = (jsDocument) => {
-    wasm_pdf.then(pdf => {
-        const imagePaths = parseJsDoc(jsDocument.contents);
-        fetchImagePaths(imagePaths).then((imgData) => {
-            // add base64 encoded bytes to document
-            jsDocument.image_data = {};
-            // add image widths and heights
-            jsDocument.image_widths = {};
-            jsDocument.image_heights = {};
-            imgData.map(d => {
-                jsDocument.image_data[d.path] = d.data;
-                jsDocument.image_widths[d.path] = d.width;
-                jsDocument.image_heights[d.path] = d.height;
+    wasm_pdf
+        .then((pdf) => {
+            const imagePaths = parseJsDoc(jsDocument.contents);
+            fetchImagePaths(imagePaths).then((imgData) => {
+                // add base64 encoded bytes to document
+                jsDocument.image_data = {};
+                // add image widths and heights
+                jsDocument.image_widths = {};
+                jsDocument.image_heights = {};
+                imgData.map((d) => {
+                    jsDocument.image_data[d.path] = d.data;
+                    jsDocument.image_widths[d.path] = d.width;
+                    jsDocument.image_heights[d.path] = d.height;
+                });
+                const bytes = pdf.generate_pdf_bytes(jsDocument);
+
+                const blob = new Blob([bytes], {
+                    type: "application/pdf",
+                });
+
+                const pdfFileBlobURL = URL.createObjectURL(blob);
+                const downloadLink = document.getElementById("download-link");
+                downloadLink.href = pdfFileBlobURL;
+                downloadLink.style.display = "block";
+                const message = document.getElementById("message");
+                message.style.display = "none";
             });
-            pdf.run(jsDocument);
-        });
-        //pdf.print_document(jsDocument);
-    }).catch(console.error)
+            //pdf.print_document(jsDocument);
+        })
+        .catch(console.error);
 };
-window.createPDF = createPDF;
+
+window.addEventListener('DOMContentLoaded', () => {
+    fetch("./examples/text-example.json")
+        .then(response => {
+            return response.json();
+        })
+        .then(doc => {
+            // Change the title to show date (now)
+            let date = new Date().toLocaleString();
+            let title = doc.contents[0].params;
+            title.text += " (created: " + date + ")";
+            createPDF(doc);
+        });
+});
 
 // convert list of image paths
-const fetchImagePaths = paths => Promise.all(paths.map(p => imageBytes(p)));
+const fetchImagePaths = (paths) => Promise.all(paths.map((p) => imageBytes(p)));
 
 // convert single image path
 const imageBytes = (url) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         let img = new Image();
         img.onload = () => {
             let canvas = document.createElement("canvas");
@@ -39,18 +65,19 @@ const imageBytes = (url) => {
                 path: url,
                 data: stripDataURI(dataURL),
                 width: img.width,
-                height: img.height
+                height: img.height,
             });
         };
-        img.onerror = () => resolve({
-            path,
-            status: 'error'
-        });
+        img.onerror = () =>
+            resolve({
+                path,
+                status: "error",
+            });
         img.src = url;
     });
 };
 
-const BASE64_MARKER = ';base64,';
+const BASE64_MARKER = ";base64,";
 
 const stripDataURI = (dataURI) => {
     const base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
@@ -60,7 +87,7 @@ const stripDataURI = (dataURI) => {
 const parseJsDoc = (obj) => {
     let results = [];
     for (let k in obj) {
-        if (obj[k] && typeof obj[k] === 'object') {
+        if (obj[k] && typeof obj[k] === "object") {
             results = results.concat(parseJsDoc(obj[k]));
         } else {
             if (k === "obj_type" && obj[k].toLowerCase() === "image") {
@@ -71,4 +98,4 @@ const parseJsDoc = (obj) => {
         }
     }
     return results;
-}
+};
